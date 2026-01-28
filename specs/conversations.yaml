@@ -1,0 +1,983 @@
+openapi: 3.0.1
+info:
+  title: Chatvolt AI - Conversations & Variables API
+  description: Endpoints for managing Conversations and Variables.
+  termsOfService: http://chatvolt.ai/terms
+  contact:
+    email: support@chatvolt.ai
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: https://api.chatvolt.ai
+tags:
+  - name: conversations
+  - name: variables
+paths:
+  /variables:
+    post:
+      tags:
+        - variables
+      summary: Creates or updates (upserts) a conversation variable.
+      description: Creates a new conversation variable if the combination of `conversationId` and `varName` does not exist, or updates the `varValue` if it already exists.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                conversationId:
+                  type: string
+                  maxLength: 50
+                  description: ID of the conversation to which the variable belongs.
+                varName:
+                  type: string
+                  maxLength: 20
+                  description: Variable name (key).
+                varValue:
+                  type: string
+                  maxLength: 100
+                  description: Variable value.
+              required:
+                - conversationId
+                - varName
+                - varValue
+      responses:
+        '200':
+          description: Success - returns the created or updated conversation variable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationVariable'
+        '400':
+          description: Invalid body
+        '403':
+          description: Unauthorized
+  /variables/{conversationId}/{varName}:
+    get:
+      tags:
+        - variables
+      summary: Gets a specific conversation variable.
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+          description: Conversation ID.
+        - in: path
+          name: varName
+          required: true
+          schema:
+            type: string
+          description: Variable name.
+      responses:
+        '200':
+          description: Success - returns the found conversation variable.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationVariable'
+        '403':
+          description: Unauthorized
+        '404':
+          description: Variable not found.
+    delete:
+      tags:
+        - variables
+      summary: Deletes a specific conversation variable.
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+          description: Conversation ID.
+        - in: path
+          name: varName
+          required: true
+          schema:
+            type: string
+          description: Name of the variable to be deleted.
+      responses:
+        '200':
+          description: Variable deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Variable successfully deleted
+                  deleted:
+                    $ref: '#/components/schemas/ConversationVariable'
+        '403':
+          description: Unauthorized.
+        '404':
+          description: Variable not found for deletion.
+  /variables/{conversationId}:
+    get:
+      tags:
+        - variables
+      summary: Gets all variables of a specific conversation.
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+          description: Conversation ID.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Success - returns an array with all the conversation variables.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConversationVariable'
+        '403':
+          description: Unauthorized.
+  /conversations/{conversationId}/set-ai-enabled:
+    post:
+      tags:
+        - conversations
+      summary: Enables or disables AI for a specific conversation.
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+          description: ID of the conversation for which the AI state will be changed.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+                  description: Defines the new AI state. `true` to enable, `false` to disable.
+              required:
+                - enabled
+      responses:
+        '200':
+          description: AI state updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'AI is On.'
+        '400':
+          description: Invalid request (e.g., missing `conversationId` in the path, or `enabled` missing/invalid in the body).
+        '403':
+          description: Unauthorized.
+        '404':
+          description: Conversation not found with the provided ID.
+  /conversations/{conversationId}/assign:
+    post:
+      tags:
+        - conversations
+      summary: Assigns a conversation to a user (agent).
+      description: Associates a user (identified by email) with a specific conversation. If the conversation is already assigned to another user, the assignment is updated.
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+          description: ID of the conversation to be assigned.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: Email of the user to whom the conversation will be assigned.
+                id:
+                  type: string
+                  description: ID of the user to whom the conversation will be assigned.
+                membershipId:
+                  type: string
+                  description: ID of the membership to whom the conversation will be assigned.
+              oneOf:
+                - required: [email]
+                - required: [id]
+                - required: [membershipId]
+      responses:
+        '200':
+          description: Conversation assigned successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Conversation Assigned.'
+        '400':
+          description: Invalid request (e.g., missing `conversationId` in the path, or `email` missing in the body).
+        '403':
+          description: Unauthorized (e.g., user trying to assign a conversation from another organization, or the email user does not belong to the conversation's organization).
+        '404':
+          description: Conversation not found with the provided ID, or user not found with the provided email.
+  /messages/{messageId}:
+    get:
+      tags:
+        - conversations
+      summary: Gets a specific message in a conversation.
+      parameters:
+        - in: path
+          name: messageId
+          required: true
+          schema:
+            type: string
+          description: Message ID.
+        - in: query
+          name: includeSources
+          schema:
+            type: boolean
+            default: false
+          description: Include the 'sources' property in the response.
+      responses:
+        '200':
+          description: Success - returns the message.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: Invalid request.
+        '403':
+          description: Unauthorized.
+        '404':
+          description: Message not found.
+  /conversations/{conversationId}/set-priority:
+    post:
+      tags:
+        - conversations
+      summary: Sets the priority of a specific conversation.
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+          description: ID of the conversation for which the priority will be set.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                priority:
+                  type: string
+                  enum:
+                    - LOW
+                    - MEDIUM
+                    - HIGH
+                  description: New priority for the conversation.
+              required:
+                - priority
+      responses:
+        '200':
+          description: Conversation priority updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Conversation Priority changed.'
+        '400':
+          description: Invalid request (e.g., missing `conversationId` in the path, or `priority` missing/invalid in the body).
+        '403':
+          description: Unauthorized.
+        '404':
+          description: Conversation not found with the provided ID.
+  /conversations/{conversationId}/message-register:
+    post:
+      tags:
+        - conversations
+      summary: Registers a message in a conversation without sending it to the user.
+      description: This endpoint is useful for registering events or messages from external triggers within the context of a specific conversation, without the message being effectively sent to the final participant.
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+          description: ID of the conversation where the message will be registered.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: Text of the message to be registered.
+                from:
+                  type: string
+                  enum:
+                    - human
+                    - agent
+                  description: Indicates the sender of the message.
+                  default: human
+              required:
+                - message
+      responses:
+        '200':
+          description: Message registered successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    $ref: '#/components/schemas/Message'
+        '400':
+          description: Invalid request (e.g., missing `conversationId` in the path, or `message` missing in the body).
+        '403':
+          description: Unauthorized (e.g., missing or invalid API key, or user does not have permission to access the conversation's organization).
+        '404':
+          description: Conversation not found with the provided ID.
+  /conversations/{conversationId}/set-status:
+    post:
+      tags:
+        - conversations
+      summary: Sets the status of a specific conversation.
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+          description: ID of the conversation for which the status will be set.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - RESOLVED
+                    - UNRESOLVED
+                    - HUMAN_REQUESTED
+                  description: New status for the conversation.
+              required:
+                - status
+      responses:
+        '200':
+          description: Conversation status updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Conversation Status changed.'
+        '400':
+          description: Invalid request (e.g., missing `conversationId` in the path, or `status` missing/invalid in the body).
+        '403':
+          description: Unauthorized.
+        '404':
+          description: Conversation not found with the provided ID.
+  /conversation:
+    get:
+      tags:
+        - conversations
+      summary: Lists conversations based on optional filters.
+      description: Allows searching for conversations by agent ID, creation date (greater than or equal to), and status.
+      parameters:
+        - in: query
+          name: agentId
+          schema:
+            type: string
+          description: Agent ID to filter conversations. If 'null' (string), searches for conversations not assigned to any agent. Optional.
+        - in: query
+          name: createdAt
+          schema:
+            type: string
+            format: date-time
+          description: Filters conversations created from this date/time (inclusive). Accepted formats include 'YYYY-MM-DD HH:mm:ss', 'YYYY-MM-DD HH:mm', 'YYYY-MM-DD', or a complete ISO 8601 format. Optional.
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum:
+              - RESOLVED
+              - UNRESOLVED
+              - HUMAN_REQUESTED
+          description: Filters conversations by status. Optional.
+      responses:
+        '200':
+          description: A list of conversations that match the filter criteria.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConversationDetailed'
+        '400':
+          description: Invalid query parameters (e.g., invalid date format for `createdAt`, or invalid `status` value).
+        '403':
+          description: Unauthorized.
+  /conversation/{conversationId}:
+    get:
+      tags:
+        - conversations
+      summary: Gets the details of a specific conversation by its ID.
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+          description: ID of the conversation to be retrieved.
+      responses:
+        '200':
+          description: Success - Returns the conversation object corresponding to the provided ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationDetailed'
+        '400':
+          description: Invalid request (e.g., missing `conversationId` or malformed).
+        '403':
+          description: Unauthorized.
+        '404':
+          description: Conversation not found with the provided ID or does not belong to the authenticated user's organization.
+    delete:
+      tags:
+        - conversations
+      summary: Deletes a specific conversation by its ID.
+      description: Permanently deletes a conversation and all associated data, including messages and uploaded files from storage.
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+          description: ID of the conversation to be deleted.
+      responses:
+        '200':
+          description: Conversation deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 'Conversation deleted.'
+        '401':
+          description: Unauthorized (e.g., user is not authenticated).
+        '403':
+          description: Forbidden (e.g., user does not have permission to delete this conversation).
+        '404':
+          description: Conversation not found with the provided ID.
+  /conversation/{conversationId}/messages/{count}:
+    get:
+      tags:
+        - conversations
+      summary: Gets a specific number of messages from a conversation.
+      description: Retrieves the last 'N' messages from a conversation, along with some conversation metadata.
+      parameters:
+        - in: path
+          name: conversationId
+          required: true
+          schema:
+            type: string
+          description: ID of the conversation from which the messages will be retrieved.
+        - in: path
+          name: count
+          schema:
+            type: integer
+            default: 2
+          description: Number of most recent messages to be retrieved. If not specified, the default is 2.
+          required: false
+      responses:
+        '200':
+          description: Success - Returns conversation details and the requested messages.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  isAiEnabled:
+                    type: boolean
+                  userId:
+                    type: string
+                  organizationId:
+                    type: string
+                  messages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+        '403':
+          description: Unauthorized (e.g., attempt to access messages from a different organization, unless it is the "Chatvolt" organization).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '404':
+          description: Conversation not found with the provided ID.
+  /conversation/message/{type}/{value}:
+    post:
+      tags:
+        - conversations
+      summary: Allows an agent to send a message to any conversation, following the rules of its parameters.
+      description: Allows an agent to send a message to a conversation, identified by ID, phone, or email.
+      parameters:
+        - in: path
+          name: type
+          required: true
+          schema:
+            type: string
+            enum: [conversationId, phone, email]
+          description: Type of conversation identifier. It can be "conversationId" for the conversation ID, "phone" for the phone number, or "email" for the email address.
+        - in: path
+          name: value
+          required: true
+          schema:
+            type: string
+          description: Value corresponding to the identifier type specified in "type".
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: Content of the message to be sent.
+                agentId:
+                  type: string
+                  description: (Optional) Agent ID, in cuid format.
+                channel:
+                  type: string
+                  enum:
+                    [
+                      'website',
+                      'dashboard',
+                      'whatsapp',
+                      'zapi',
+                      'telegram',
+                      'instagramDm',
+                    ]
+                  description: (Optional) Channel used to send the message.
+                attachments:
+                  type: array
+                  description: (Optional) List of attachments to be sent.
+                  items:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        description: Attachment URL.
+                      name:
+                        type: string
+                        description: Attachment name.
+                      mimeType:
+                        type: string
+                        description: MIME type of the attachment.
+                visitorId:
+                  type: string
+                  description: (Optional) Visitor ID, if applicable.
+                contactId:
+                  type: string
+                  description: (Optional) Contact ID, if applicable.
+              required:
+                - message
+      responses:
+        '200':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    $ref: '#/components/schemas/Message'
+        '400':
+          description: Invalid request. This can occur if `type` is not `conversationId` and `agentId` or `channel` are missing, or if the request body is invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: INVALID_REQUEST
+        '403':
+          description: Unauthorized (e.g., session organization not found).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: UNAUTHORIZED
+        '404':
+          description: Conversation not found with the provided identifiers.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: NOT FOUND
+        '406':
+          description: Session expired. The 24-hour limit for responding via API (for channels like WhatsApp/Instagram DM) has been exceeded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: ERR_META_SESSION_EXPIRED_24H
+        '500':
+          description: Server error. Occurs when no conversation is found based on the provided parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: No Conversation found
+components:
+  schemas:
+    ConversationVariable:
+      type: object
+      properties:
+        conversationId:
+          type: string
+        varName:
+          type: string
+        varValue:
+          type: string
+      required:
+        - conversationId
+        - varName
+        - varValue
+    DatasourceChunk:
+      type: object
+      properties:
+        text:
+          type: string
+          description: Content of the chunk.
+        score:
+          type: number
+          description: Similarity score of the chunk with the query.
+        source:
+          type: string
+          description: URL or identifier of the original source of the chunk.
+        datasource_id:
+          type: string
+          description: ID of the datasource to which the chunk belongs.
+        datasource_name:
+          type: string
+          description: Name of the datasource to which the chunk belongs.
+        custom_id:
+          type: string
+          nullable: true
+          description: Custom ID associated with the chunk (if any).
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags associated with the chunk (if any).
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+        text:
+          type: string
+        html:
+          type: string
+          nullable: true
+        from:
+          type: string
+          enum: [human, agent]
+        conversationId:
+          type: string
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasourceChunk'
+          nullable: true
+        usage:
+          type: object
+          nullable: true
+        externalId:
+          type: string
+          nullable: true
+        userId:
+          type: string
+          nullable: true
+        contactId:
+          type: string
+          nullable: true
+        visitorId:
+          type: string
+          nullable: true
+        agentId:
+          type: string
+          nullable: true
+        metadata:
+          type: object
+          nullable: true
+        inputId:
+          type: string
+          nullable: true
+        eval:
+          type: string
+          nullable: true
+          enum: [good, bad, null]
+        read:
+          type: boolean
+        agentModel:
+          type: string
+          nullable: true
+        usageCredits:
+          type: number
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Contact:
+      type: object
+      properties:
+        id:
+          type: string
+          format: cuid
+        organizationId:
+          type: string
+          format: cuid
+        email:
+          type: string
+          format: email
+          nullable: true
+        phoneNumber:
+          type: string
+          nullable: true
+        firstName:
+          type: string
+          nullable: true
+        lastName:
+          type: string
+          nullable: true
+        externalId:
+          type: string
+          nullable: true
+        picture:
+          type: string
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties: true
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ConversationDetailed:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier for the conversation
+        title:
+          type: string
+          nullable: true
+          description: The title of the conversation, if available
+        isAiEnabled:
+          type: boolean
+          description: Indicates whether AI is enabled for the conversation
+        channel:
+          type: string
+          description: The channel through which the conversation took place (e.g., 'dashboard', 'whatsapp')
+        status:
+          type: string
+          description: The current status of the conversation
+          enum:
+            - RESOLVED
+            - UNRESOLVED
+            - HUMAN_REQUESTED
+        metadata:
+          type: object
+          nullable: true
+          description: Metadata associated with the conversation, if any
+        channelExternalId:
+          type: string
+          nullable: true
+          description: External ID of the channel, if any
+        channelCredentialsId:
+          type: string
+          nullable: true
+          description: ID of the credentials used for the channel
+        organizationId:
+          type: string
+          description: The organization ID associated with the conversation
+        mailInboxId:
+          type: string
+          nullable: true
+          description: The mailbox ID, if relevant
+        priority:
+          type: string
+          description: The priority of the conversation
+          enum:
+            - LOW
+            - MEDIUM
+            - HIGH
+        formId:
+          type: string
+          nullable: true
+          description: ID of the form used, if any
+        agentId:
+          type: string
+          nullable: true
+          description: The ID of the agent handling the conversation
+        userId:
+          type: string
+          nullable: true
+          description: The ID of the user associated with the conversation
+        visitorId:
+          type: string
+          nullable: true
+          description: The ID of the visitor, if applicable
+        frustration:
+          type: number
+          nullable: true
+          description: Frustration level of the conversation, if applicable
+        createdAt:
+          type: string
+          format: date-time
+          description: The date and time when the conversation was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: The date and time when the conversation was last updated
+        participantsContacts:
+          type: array
+          description: List of contacts associated with the conversation
+          items:
+            $ref: '#/components/schemas/Contact'
+        conversationVariables:
+          type: array
+          description: List of variables associated with the conversation
+          items:
+            $ref: '#/components/schemas/ConversationVariable'
+        conversationContexts:
+          type: array
+          description: List of contexts associated with the conversation.
+          items:
+            type: object
+            properties:
+              context:
+                type: string
+                nullable: true
+                description: The context text.
+              updatedAt:
+                type: string
+                format: date-time
+                description: Date of the last context update.
+        assignees:
+          type: array
+          description: List of assignees for the conversation.
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The membership ID of the assignee.
+              user:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The user ID of the assignee.
+                  name:
+                    type: string
+                    description: The name of the assignee.
+                  email:
+                    type: string
+                    format: email
+                    description: The email of the assignee.
+        tags: 
+          type: array
+          description: List of tags associated with the conversation.
+          items:
+            type: object
+            properties:
+              tag:
+                type: string
+                description: The tag name.
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []

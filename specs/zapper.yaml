@@ -1,0 +1,175 @@
+openapi: 3.0.1
+info:
+  title: Chatvolt AI - Zapper Api
+  description: Endpoints for sending messages via Zapper.
+  termsOfService: http://chatvolt.ai/terms
+  contact:
+    email: support@chatvolt.ai
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+  - url: https://api.chatvolt.ai
+tags:
+  - name: zapper
+paths:
+  /zapper/instances/{id}/message:
+    post:
+      tags:
+        - zapper
+      summary: Sends a message through the Zapper integration.
+      description: |-
+        This endpoint allows sending a text message and/or attachments to a destination number, using a configured Zapper instance.
+        The message is also registered in the conversation associated with the agent and contact.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: "Zapper instance ID (externalId of the ServiceProvider of type 'zapper')."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  description: Textual content of the message.
+                contactPhone:
+                  type: string
+                  description: Recipient's number.
+                attachments:
+                  type: array
+                  description: Optional list of attachments to be sent.
+                  items:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        format: url
+                        description: Public URL of the attachment.
+                      name:
+                        type: string
+                        description: Attachment file name (optional).
+                      mimeType:
+                        type: string
+                        description: MIME type of the attachment (e.g., 'image/jpeg', 'application/pdf').
+                    required:
+                      - url
+      responses:
+        '200':
+          description: Message sent and registered successfully. Returns the message object created in the system.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '400':
+          description: Invalid request (e.g., missing `instanceId`, `contactPhone` in the path, or `message`/`attachments` missing in the body).
+        '402':
+          description: Premium functionality. The organization does not have an active subscription.
+        '403':
+          description: Unauthorized (e.g., invalid API key, or agent does not belong to the session's organization).
+        '404':
+          description: Resource not found (e.g., Zapper instance not found, agent not found, or invalid `contactPhone`).
+components:
+  schemas:
+    DatasourceChunk:
+      type: object
+      properties:
+        text:
+          type: string
+          description: Content of the chunk.
+        score:
+          type: number
+          description: Similarity score of the chunk with the query.
+        source:
+          type: string
+          description: URL or identifier of the original source of the chunk.
+        datasource_id:
+          type: string
+          description: ID of the datasource to which the chunk belongs.
+        datasource_name:
+          type: string
+          description: Name of the datasource to which the chunk belongs.
+        custom_id:
+          type: string
+          nullable: true
+          description: Custom ID associated with the chunk (if any).
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags associated with the chunk (if any).
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+        text:
+          type: string
+        html:
+          type: string
+          nullable: true
+        from:
+          type: string
+          enum: [human, agent]
+        conversationId:
+          type: string
+        sources:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasourceChunk'
+          nullable: true
+        usage:
+          type: object
+          nullable: true
+        externalId:
+          type: string
+          nullable: true
+        userId:
+          type: string
+          nullable: true
+        contactId:
+          type: string
+          nullable: true
+        visitorId:
+          type: string
+          nullable: true
+        agentId:
+          type: string
+          nullable: true
+        metadata:
+          type: object
+          nullable: true
+        inputId:
+          type: string
+          nullable: true
+        eval:
+          type: string
+          nullable: true
+          enum: [good, bad, null]
+        read:
+          type: boolean
+        agentModel:
+          type: string
+          nullable: true
+        usageCredits:
+          type: number
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
