@@ -1,11 +1,18 @@
+import contextlib
+from collections.abc import AsyncIterator
+
 from mcp.server import Server
 import mcp.types as types
 from src.tools.loader import registry
 from src.prompts.workflows import PROMPTS, get_prompt_message
+from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
+
 from starlette.applications import Starlette
-from starlette.routing import Route, Mount
-from mcp.server.sse import SseServerTransport
-import asyncio
+from starlette.routing import Route
+from starlette.middleware import Middleware
+from starlette.middleware.cors import CORSMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
 
 app = Server("chatvolt-mcp")
 
@@ -33,19 +40,80 @@ async def handle_get_prompt(
     """Get a specific prompt."""
     return get_prompt_message(name, arguments or {})
 
-sse = SseServerTransport("/messages")
 
-async def handle_sse(request):
-    async with sse.connect_sse(request.scope, request.receive, request._send) as streams:
-        await app.run(
-            streams[0],
-            streams[1],
-            app.create_initialization_options()
-        )
+# StreamableHTTP with stateless=True and json_response=True:
+# - stateless: no session tracking, each request is independent
+# - json_response: returns JSON body directly (not SSE stream)
+# This is what Gemini CLI (antigravity-client) expects.
+session_manager = StreamableHTTPSessionManager(
+    app=app,
+    json_response=True,
+    stateless=True,
+)
+
+
+@contextlib.asynccontextmanager
+async def lifespan(starlette_app: Starlette) -> AsyncIterator[None]:
+    async with session_manager.run():
+        yield
+
+
+class MCPApp:
+    """
+    Raw ASGI app for the /sse endpoint.
+    Injects Accept header before delegating to StreamableHTTPSessionManager.
+    """
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http":
+            headers = list(scope.get("headers", []))
+            accept_values = [v for k, v in headers if k.lower() == b"accept"]
+            needs_inject = (
+                not accept_values
+                or (
+                    b"application/json" not in accept_values[0]
+                    and b"text/event-stream" not in accept_values[0]
+                )
+            )
+            if needs_inject:
+                headers = [(k, v) for k, v in headers if k.lower() != b"accept"]
+                headers.append((b"accept", b"application/json, text/event-stream"))
+                scope = dict(scope)
+                scope["headers"] = headers
+
+        await session_manager.handle_request(scope, receive, send)
+
+
+mcp_app = MCPApp()
 
 starlette_app = Starlette(
+    lifespan=lifespan,
     routes=[
-        Route("/sse", endpoint=handle_sse),
-        Mount("/messages", app=sse.handle_post_message),
+        # Mount (not Route) so handle_mcp gets raw ASGI (scope, receive, send)
+        # Route would wrap it in a Request object and cause a TypeError.
+        # We strip trailing slashes manually in MCPApp so no 307 redirect occurs.
+        # The MCP SDK's handle_request doesn't care about path.
+        Route("/sse", endpoint=lambda req: None),  # placeholder for OpenAPI
+    ],
+    middleware=[
+        Middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
     ]
 )
+
+# Override the ASGI app so all /sse traffic goes to mcp_app directly
+_inner = starlette_app
+
+class RootApp:
+    """Routes /sse and /sse/ to MCPApp, everything else to Starlette."""
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http":
+            path = scope.get("path", "").rstrip("/")
+            if path == "/sse":
+                await mcp_app(scope, receive, send)
+                return
+        elif scope["type"] == "lifespan":
+            await _inner(scope, receive, send)
+            return
+        await _inner(scope, receive, send)
+
+starlette_app = RootApp()
+

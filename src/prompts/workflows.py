@@ -17,17 +17,6 @@ PROMPTS = {
             )
         ]
     ),
-    "support_ticket_workflow": types.Prompt(
-        name="support_ticket_workflow",
-        description="Retrieve conversation history and create a CRM entry.",
-        arguments=[
-            types.PromptArgument(
-                name="conversation_id",
-                description="The ID of the conversation to summarize",
-                required=True
-            )
-        ]
-    ),
     "broadcast_campaign": types.Prompt(
         name="broadcast_campaign",
         description="Setup a dispatch for a list of contacts.",
@@ -66,22 +55,6 @@ def get_prompt_message(name: str, arguments: dict) -> types.GetPromptResult:
                         text=f"I want to onboard a new user named {first_name} with phone {phone}. "
                              f"Please first use the 'contacts_post_contacts' tool to create the contact, "
                              f"then ask me for a message template to send via 'whatsapp_post_zapi_instanceId_contactPhone_message'."
-                    )
-                )
-            ]
-        )
-    elif name == "support_ticket_workflow":
-        conv_id = arguments.get("conversation_id")
-        return types.GetPromptResult(
-            description="Support Ticket Workflow",
-            messages=[
-                types.PromptMessage(
-                    role="user",
-                    content=types.TextContent(
-                        type="text",
-                        text=f"I need to handle a support ticket for conversation {conv_id}. "
-                             f"First, retrieve the messages using 'conversations_get_conversations_id_messages'. "
-                             f"Then, summarize the issue and use 'crm_post_crm_entries' to log it."
                     )
                 )
             ]

@@ -1,85 +1,14 @@
-import os
-import yaml
 import httpx
+import re
+import os
 from typing import Dict, Any, List
+from src.tools.definitions import TOOLS_DEFINITION
 from mcp import types
 from src.config import CHATVOLT_API_KEY, CHATVOLT_BASE_URL
 
 class ToolRegistry:
-    def __init__(self, specs_dir: str):
-        self.specs_dir = specs_dir
-        self.tools: Dict[str, Dict[str, Any]] = {}
-        self.load_specs()
-
-    def load_specs(self):
-        for filename in os.listdir(self.specs_dir):
-            if filename.endswith(".yaml"):
-                service_name = filename.replace(".yaml", "")
-                with open(os.path.join(self.specs_dir, filename), 'r') as f:
-                    spec = yaml.safe_load(f)
-                    self.parse_spec(service_name, spec)
-
-    def parse_spec(self, service: str, spec: Dict[str, Any]):
-        paths = spec.get("paths")
-        if not paths:
-            return
-        for path, methods in paths.items():
-            for method, details in methods.items():
-                if method.lower() not in ["get", "post", "put", "delete", "patch"]:
-                    continue
-                
-                operation_id = details.get("operationId")
-                summary = details.get("summary", "")
-                description = details.get("description", summary)
-                
-                # Create a unique name for the tool
-                # e.g., contacts_get_contacts
-                clean_path = path.strip("/").replace("/", "_").replace("{", "").replace("}", "")
-                tool_name = f"{service}_{method}_{clean_path}"
-                if operation_id:
-                   # Optionally use operation_id if available and clean
-                   pass
-
-                # Build input schema
-                properties = {}
-                required = []
-
-                # Path parameters
-                parameters = details.get("parameters", [])
-                for param in parameters:
-                    p_name = param.get("name")
-                    p_schema = param.get("schema", {"type": "string"})
-                    properties[p_name] = {
-                        "type": p_schema.get("type", "string"),
-                        "description": param.get("description", "")
-                    }
-                    if param.get("required"):
-                        required.append(p_name)
-
-                # Request body
-                request_body = details.get("requestBody", {})
-                content = request_body.get("content", {})
-                json_content = content.get("application/json", {})
-                body_schema = json_content.get("schema", {})
-                
-                if body_schema.get("type") == "object":
-                    body_props = body_schema.get("properties", {})
-                    for p_name, p_val in body_props.items():
-                        properties[p_name] = p_val
-                    required.extend(body_schema.get("required", []))
-
-                self.tools[tool_name] = {
-                    "service": service,
-                    "method": method.upper(),
-                    "path": path,
-                    "description": description,
-                    "input_schema": {
-                        "type": "object",
-                        "properties": properties,
-                        "required": list(set(required))
-                    },
-                    "original_spec": details
-                }
+    def __init__(self):
+        self.tools = TOOLS_DEFINITION
 
     def get_tool_list(self) -> List[types.Tool]:
         return [
@@ -99,51 +28,89 @@ class ToolRegistry:
         method = tool_info["method"]
         path = tool_info["path"]
         
-        # Replace path variables
-        for key, value in arguments.items():
-            if f"{{{key}}}" in path:
-                path = path.replace(f"{{{key}}}", str(value))
+        args_copy = arguments.copy()
         
-        url = f"{CHATVOLT_BASE_URL}{path}"
-        
-        headers = {
-            "Authorization": f"Bearer {CHATVOLT_API_KEY}",
-            "Content-Type": "application/json"
-        }
-
-        # Separate arguments into path, query, and body
-        # For simplicity, we'll try to be smart about where they go
-        # If it's a GET, put everything in query. If it's POST/PUT/PATCH, put what's not in path in body.
+        # Replace path variables {id}
+        path_vars = re.findall(r"\{(\w+)\}", path)
+        for var in path_vars:
+            if var in args_copy:
+                path = path.replace(f"{{{var}}}", str(args_copy.pop(var)))
         
         query_params = {}
         json_body = {}
         
-        # Check spec for where params should go
-        params_spec = tool_info["original_spec"].get("parameters", [])
-        path_param_names = [p["name"] for p in params_spec if p.get("in") == "path"]
-        query_param_names = [p["name"] for p in params_spec if p.get("in") == "query"]
+        # Special case for toggle_webhook query parameters
+        if name == "toggle_webhook":
+            if "type" in args_copy:
+                query_params["type"] = args_copy.pop("type")
+            if "enabled" in args_copy:
+                query_params["enabled"] = str(args_copy.pop("enabled")).lower()
         
-        for key, value in arguments.items():
-            if key in path_param_names:
-                continue # Already handled in path replacement
-            elif key in query_param_names:
-                query_params[key] = value
-            else:
-                if method in ["POST", "PUT", "PATCH"]:
-                    json_body[key] = value
-                else:
-                    query_params[key] = value
+        # Special case for search_artifacts: convert lists to comma-separated strings
+        if name == "search_artifacts":
+            for key in ["ids", "categoryIds", "mediaTypes"]:
+                if key in args_copy and isinstance(args_copy[key], list):
+                    args_copy[key] = ",".join(map(str, args_copy[key]))
+        
+        if method == "GET":
+            query_params.update(args_copy)
+        else:
+            json_body.update(args_copy)
+            
+        url = f"{CHATVOLT_BASE_URL}{path}"
+        
+        headers = {
+            "Content-Type": "application/json"
+        }
+        # get_models doesn't need auth according to the request
+        if name != "get_models":
+            headers["Authorization"] = f"Bearer {CHATVOLT_API_KEY}"
 
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.request(
-                    method=method,
-                    url=url,
-                    headers=headers,
-                    params=query_params,
-                    json=json_body if json_body else None,
-                    timeout=30.0
-                )
+                if name == "upload_artifact_media" or (name == "create_datasource" and arguments.get("type") == "file"):
+                    file_path = arguments.get("file_path")
+                    if not file_path or not os.path.exists(file_path):
+                        return [types.TextContent(type="text", text=f"File not found: {file_path}")]
+                    
+                    files = {
+                        "file": (os.path.basename(file_path), open(file_path, "rb"))
+                    }
+                    
+                    if name == "upload_artifact_media":
+                        data = {
+                            "artifact_id": arguments.get("artifact_id"),
+                            "name": arguments.get("name"),
+                            "alt_description": arguments.get("alt_description", "")
+                        }
+                    else: # create_datasource
+                        data = {
+                            "type": "file",
+                            "datastoreId": arguments.get("datastoreId"),
+                            "fileName": arguments.get("fileName") or os.path.basename(file_path),
+                            "custom_id": arguments.get("custom_id", "")
+                        }
+                        
+                    # Remove Content-Type from headers as httpx will set it with the boundary
+                    headers.pop("Content-Type", None)
+                    
+                    response = await client.post(
+                        url,
+                        headers=headers,
+                        data=data,
+                        files=files,
+                        timeout=60.0 # Increased timeout for uploads
+                    )
+                else:
+                    response = await client.request(
+                        method=method,
+                        url=url,
+                        headers=headers,
+                        params=query_params,
+                        json=json_body if json_body else None,
+                        timeout=30.0
+                    )
+                
                 response.raise_for_status()
                 return [types.TextContent(type="text", text=response.text)]
             except httpx.HTTPStatusError as e:
@@ -152,4 +119,4 @@ class ToolRegistry:
                 return [types.TextContent(type="text", text=f"Error: {str(e)}")]
 
 # Singleton instance
-registry = ToolRegistry("specs")
+registry = ToolRegistry()
