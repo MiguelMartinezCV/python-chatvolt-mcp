@@ -51,17 +51,18 @@ Priority: P0 (Critical) → P1 (High) → P2 (Medium) → P3 (Low)
 - [x] Update README with Ralph Loop usage instructions
 
 ## Stats
-- **108 tools** implemented (agents, conversations, artifacts, datastores, CRM, contacts, dispatches, blacklist, Z-API, datasource management, WhatsApp Official, Interactive Messages, Twilio, Mercado Livre, Zapper)
+- **116 tools** implemented (agents, conversations, artifacts, datastores, CRM, contacts, dispatches, blacklist, Z-API, datasource management, WhatsApp Official, Interactive Messages, Twilio, Mercado Livre, Zapper, Contact Lists)
 - **8 workflow prompts** implemented
 - **67 tests** passing (76% coverage)
 - **All tools have annotations** (title, readOnlyHint, destructiveHint, idempotentHint, openWorldHint)
 - **Resources**: models, tools, prompts, agent/conversation/contact/dispatch/datastore templates
-- **Completions**: modelName, status, channel, type, method, priority, visibility, direction, messageType, toolType
+- **Completions**: modelName, status, channel, type, method, priority, visibility, direction, messageType, toolType, dispatchStatus
 - **Structured errors**: {error, status, message}
-- **Pagination**: cursor-based pagination support for list operations (list_conversations, list_artifacts, list_contacts, list_dispatches, list_blacklist, list_crm_logs, list_crm_scenarios, list_crm_steps, list_datastores, list_datasources, list_artifact_media)
+- **Pagination**: cursor-based pagination support for list operations (list_conversations, list_artifacts, list_contacts, list_dispatches, list_blacklist, list_crm_logs, list_crm_scenarios, list_crm_steps, list_datastores, list_datasources, list_artifact_media, list_contact_lists)
 - **Async retries**: async retry logic with exponential backoff for transient failures
 - **New integrations**: WhatsApp Official API (template messages, templates), Interactive Messages (buttons, list, CTA, location, contact), Twilio SMS, Mercado Livre products, Zapper messaging
 - **Logging**: MCP logging capability with setLevel handler for client-configurable verbosity
 - **Server metadata**: Added version, instructions to Server initialization
 - **Tools listChanged**: Enabled tools.listChanged capability for real-time tool update notifications
 - **Enhanced agent tools**: create_agent and update_agent now support visibility, handle, interfaceConfig, inactiveHours, external URL configs
+- **New dispatch features**: populate_dispatch_queue, Contact List CRUD operations (list_contact_lists, get_contact_list, create_contact_list, update_contact_list, delete_contact_list)

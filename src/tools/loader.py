@@ -675,6 +675,48 @@ TOOL_ANNOTATIONS = {
         "idempotentHint": False,
         "openWorldHint": True,
     },
+    "populate_dispatch_queue": {
+        "title": "Populate Dispatch Queue",
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+    "list_contact_lists": {
+        "title": "List Contact Lists",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+    "get_contact_list": {
+        "title": "Get Contact List",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+    "create_contact_list": {
+        "title": "Create Contact List",
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+    "update_contact_list": {
+        "title": "Update Contact List",
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+    "delete_contact_list": {
+        "title": "Delete Contact List",
+        "readOnlyHint": False,
+        "destructiveHint": True,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
 }
 
 

@@ -97,4 +97,80 @@ TOOLS: dict[str, dict[str, Any]] = {
             "required": ["id"],
         },
     },
+    "populate_dispatch_queue": {
+        "method": "POST",
+        "path": "/dispatches/{id}/populate-queue",
+        "description": "Populate the dispatch queue for a given dispatch. Clears existing queue and repopulates based on contact lists. Respects inclusion and exclusion rules.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "id": {"type": "string", "description": "ID of the dispatch to populate"},
+            },
+            "required": ["id"],
+        },
+    },
+    "list_contact_lists": {
+        "method": "GET",
+        "path": "/dispatches/contacts/lists",
+        "description": "Retrieve all contact lists with optional filtering and pagination.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "offset": {"type": "integer", "default": 0, "description": "Number of records to skip"},
+                "limit": {"type": "integer", "default": 100, "description": "Max records to return"},
+                "search": {"type": "string", "description": "Search term for list name"},
+            },
+        },
+    },
+    "get_contact_list": {
+        "method": "GET",
+        "path": "/dispatches/contacts/lists/{id}",
+        "description": "Retrieve a specific contact list by ID.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "id": {"type": "string", "description": "ID of the contact list"},
+            },
+            "required": ["id"],
+        },
+    },
+    "create_contact_list": {
+        "method": "POST",
+        "path": "/dispatches/contacts/lists",
+        "description": "Create a new contact list for dispatches.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "description": "Name of the contact list"},
+                "description": {"type": "string", "description": "Description of the contact list"},
+            },
+            "required": ["name"],
+        },
+    },
+    "update_contact_list": {
+        "method": "PUT",
+        "path": "/dispatches/contacts/lists/{id}",
+        "description": "Update an existing contact list.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "id": {"type": "string", "description": "ID of the contact list to update"},
+                "name": {"type": "string", "description": "New name for the contact list"},
+                "description": {"type": "string", "description": "New description"},
+            },
+            "required": ["id"],
+        },
+    },
+    "delete_contact_list": {
+        "method": "DELETE",
+        "path": "/dispatches/contacts/lists/{id}",
+        "description": "Delete a contact list.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "id": {"type": "string", "description": "ID of the contact list to delete"},
+            },
+            "required": ["id"],
+        },
+    },
 }

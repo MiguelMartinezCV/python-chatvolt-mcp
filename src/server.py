@@ -221,6 +221,7 @@ COMPLETION_VALUES = {
         "multipart/form-data",
         "text/plain",
     ],
+    "dispatchStatus": ["pending", "sending", "completed", "failed"],
 }
 
 
@@ -298,6 +299,11 @@ async def handle_complete(
     # Suggest content type values
     if arg_name in ("contentType", "content_type"):
         values = [v for v in COMPLETION_VALUES["contentType"] if arg_value.lower() in v.lower()]
+        return types.Completion(values=values, total=None, hasMore=None)
+
+    # Suggest dispatch status values
+    if arg_name == "status":
+        values = [v for v in COMPLETION_VALUES["dispatchStatus"] if arg_value.lower() in v.lower()]
         return types.Completion(values=values, total=None, hasMore=None)
 
     return None
