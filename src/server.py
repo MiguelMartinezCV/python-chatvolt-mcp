@@ -222,6 +222,10 @@ COMPLETION_VALUES = {
         "text/plain",
     ],
     "dispatchStatus": ["pending", "sending", "completed", "failed"],
+    "presencePenalty": ["-2.0", "-1.5", "-1.0", "-0.5", "0.0", "0.5", "1.0", "1.5", "2.0"],
+    "frequencyPenalty": ["-2.0", "-1.5", "-1.0", "-0.5", "0.0", "0.5", "1.0", "1.5", "2.0"],
+    "topP": ["0.0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"],
+    "temperature": ["0.0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"],
 }
 
 
@@ -304,6 +308,26 @@ async def handle_complete(
     # Suggest dispatch status values
     if arg_name == "status":
         values = [v for v in COMPLETION_VALUES["dispatchStatus"] if arg_value.lower() in v.lower()]
+        return types.Completion(values=values, total=None, hasMore=None)
+
+    # Suggest presence penalty values
+    if arg_name == "presencePenalty":
+        values = [v for v in COMPLETION_VALUES["presencePenalty"] if arg_value in v]
+        return types.Completion(values=values, total=None, hasMore=None)
+
+    # Suggest frequency penalty values
+    if arg_name == "frequencyPenalty":
+        values = [v for v in COMPLETION_VALUES["frequencyPenalty"] if arg_value in v]
+        return types.Completion(values=values, total=None, hasMore=None)
+
+    # Suggest topP values
+    if arg_name == "topP":
+        values = [v for v in COMPLETION_VALUES["topP"] if arg_value in v]
+        return types.Completion(values=values, total=None, hasMore=None)
+
+    # Suggest temperature values
+    if arg_name == "temperature":
+        values = [v for v in COMPLETION_VALUES["temperature"] if arg_value in v]
         return types.Completion(values=values, total=None, hasMore=None)
 
     return None

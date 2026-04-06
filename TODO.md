@@ -56,7 +56,7 @@ Priority: P0 (Critical) → P1 (High) → P2 (Medium) → P3 (Low)
 - **67 tests** passing (76% coverage)
 - **All tools have annotations** (title, readOnlyHint, destructiveHint, idempotentHint, openWorldHint)
 - **Resources**: models, tools, prompts, agent/conversation/contact/dispatch/datastore templates
-- **Completions**: modelName, status, channel, type, method, priority, visibility, direction, messageType, toolType, dispatchStatus
+- **Completions**: modelName, status, channel, type, method, priority, visibility, direction, messageType, toolType, dispatchStatus, presencePenalty, frequencyPenalty, topP, temperature
 - **Structured errors**: {error, status, message}
 - **Pagination**: cursor-based pagination support for list operations (list_conversations, list_artifacts, list_contacts, list_dispatches, list_blacklist, list_crm_logs, list_crm_scenarios, list_crm_steps, list_datastores, list_datasources, list_artifact_media, list_contact_lists)
 - **Async retries**: async retry logic with exponential backoff for transient failures
