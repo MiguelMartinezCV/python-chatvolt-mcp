@@ -117,6 +117,45 @@ class TestNewTools:
         names = [t.name for t in tools]
         assert "delete_artifact" in names, "Missing delete_artifact tool"
 
+    @pytest.mark.asyncio
+    async def test_whatsapp_official_tools_exist(self):
+        tools = await handle_list_tools()
+        names = [t.name for t in tools]
+        for name in ["whatsapp_template_message", "whatsapp_list_templates", "whatsapp_create_template"]:
+            assert name in names, f"Missing WhatsApp Official tool: {name}"
+
+    @pytest.mark.asyncio
+    async def test_interactive_tools_exist(self):
+        tools = await handle_list_tools()
+        names = [t.name for t in tools]
+        for name in [
+            "send_interactive_buttons",
+            "send_interactive_list",
+            "send_cta_url",
+            "send_location",
+            "request_location",
+            "send_contact",
+        ]:
+            assert name in names, f"Missing interactive tool: {name}"
+
+    @pytest.mark.asyncio
+    async def test_twilio_tool_exists(self):
+        tools = await handle_list_tools()
+        names = [t.name for t in tools]
+        assert "twilio_send_sms" in names, "Missing twilio_send_sms tool"
+
+    @pytest.mark.asyncio
+    async def test_mercadolivre_tool_exists(self):
+        tools = await handle_list_tools()
+        names = [t.name for t in tools]
+        assert "mercadolivre_get_products" in names, "Missing mercadolivre_get_products tool"
+
+    @pytest.mark.asyncio
+    async def test_zapper_tool_exists(self):
+        tools = await handle_list_tools()
+        names = [t.name for t in tools]
+        assert "zapper_send_message" in names, "Missing zapper_send_message tool"
+
 
 class TestNewToolCalls:
     @pytest.mark.asyncio

@@ -12,7 +12,12 @@ from .crm_scenarios import TOOLS as CRM_SCENARIOS_TOOLS
 from .datasources import TOOLS as DATASOURCES_TOOLS
 from .datastores import TOOLS as DATASTORES_TOOLS
 from .dispatches import TOOLS as DISPATCHES_TOOLS
+from .interactive import TOOLS as INTERACTIVE_TOOLS
+from .mercadolivre import TOOLS as MERCADOLIVRE_TOOLS
+from .twilio import TOOLS as TWILIO_TOOLS
+from .whatsapp_official import TOOLS as WHATSAPP_OFFICIAL_TOOLS
 from .zapi import TOOLS as ZAPI_TOOLS
+from .zapper import TOOLS as ZAPPER_TOOLS
 
 TOOLS_DEFINITION: dict[str, dict[str, Any]] = {
     **AGENTS_TOOLS,
@@ -28,4 +33,9 @@ TOOLS_DEFINITION: dict[str, dict[str, Any]] = {
     **CRM_LOGS_TOOLS,
     **DATASOURCES_TOOLS,
     **ZAPI_TOOLS,
+    **WHATSAPP_OFFICIAL_TOOLS,
+    **INTERACTIVE_TOOLS,
+    **TWILIO_TOOLS,
+    **MERCADOLIVRE_TOOLS,
+    **ZAPPER_TOOLS,
 }
