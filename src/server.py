@@ -10,9 +10,156 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.routing import Route
 
 from src.prompts.workflows import PROMPTS, get_prompt_message
+from src.tools.definitions import TOOLS_DEFINITION
 from src.tools.loader import registry
 
 app = Server("chatvolt-mcp")
+
+
+# --- Resources ---
+
+RESOURCES = {
+    "chatvolt://models": types.Resource(
+        uri="chatvolt://models",
+        name="Available LLM Models",
+        description="List of all available AI models and their pricing",
+        mimeType="application/json",
+    ),
+    "chatvolt://tools": types.Resource(
+        uri="chatvolt://tools",
+        name="All MCP Tools",
+        description="Complete list of all available MCP tools with their schemas",
+        mimeType="application/json",
+    ),
+    "chatvolt://prompts": types.Resource(
+        uri="chatvolt://prompts",
+        name="All Workflow Prompts",
+        description="Complete list of all available workflow prompts with their arguments",
+        mimeType="application/json",
+    ),
+}
+
+
+@app.list_resources()
+async def handle_list_resources() -> list[types.Resource]:
+    """List available resources."""
+    return list(RESOURCES.values())
+
+
+@app.read_resource()
+async def handle_read_resource(uri: str) -> str | bytes:
+    """Read a specific resource by URI."""
+    import json
+
+    if uri == "chatvolt://models":
+        return json.dumps({"note": "Use the get_models tool to retrieve available models and pricing"})
+    elif uri == "chatvolt://tools":
+        tools_info = {}
+        for name, info in TOOLS_DEFINITION.items():
+            tools_info[name] = {
+                "method": info["method"],
+                "path": info["path"],
+                "description": info["description"],
+                "parameters": info["input_schema"],
+            }
+        return json.dumps(tools_info, indent=2)
+    elif uri == "chatvolt://prompts":
+        prompts_info = {}
+        for name, prompt in PROMPTS.items():
+            prompts_info[name] = {
+                "description": prompt.description,
+                "arguments": [
+                    {"name": a.name, "description": a.description, "required": a.required}
+                    for a in (prompt.arguments or [])
+                ],
+            }
+        return json.dumps(prompts_info, indent=2)
+    else:
+        raise ValueError(f"Unknown resource: {uri}")
+
+
+@app.list_resource_templates()
+async def handle_list_resource_templates() -> list[types.ResourceTemplate]:
+    """List resource templates."""
+    return [
+        types.ResourceTemplate(
+            uriTemplate="chatvolt://agent/{agentId}",
+            name="Agent Configuration",
+            description="Get the configuration of a specific agent",
+            mimeType="application/json",
+        ),
+    ]
+
+
+# --- Completions ---
+
+COMPLETION_VALUES = {
+    "modelName": [
+        "gpt-4o",
+        "gpt-4o-mini",
+        "gpt-4-turbo",
+        "claude-3-5-sonnet",
+        "claude-3-5-haiku",
+        "claude-3-opus",
+        "gemini-1.5-pro",
+        "gemini-1.5-flash",
+        "mistral-large",
+        "llama-3-70b",
+    ],
+    "status": ["RESOLVED", "UNRESOLVED", "HUMAN_REQUESTED"],
+    "channel": ["whatsapp", "telegram", "zapi", "instagram"],
+    "type": ["http", "datastore", "mark_as_resolved", "request_human", "delayed_responses", "follow_up_messages"],
+    "method": ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    "defaultStatus": ["RESOLVED", "UNRESOLVED", "HUMAN_REQUESTED", "null"],
+    "defaultPriority": ["LOW", "MEDIUM", "HIGH", "null"],
+}
+
+
+@app.completion()
+async def handle_complete(
+    ref: types.PromptReference | types.ResourceTemplateReference,
+    argument: types.CompletionArgument,
+    context: types.CompletionContext | None = None,
+) -> types.Completion | None:
+    """Provide completion suggestions for argument values."""
+    arg_name = argument.name
+    arg_value = argument.value
+
+    # Suggest model names
+    if arg_name == "modelName":
+        values = [v for v in COMPLETION_VALUES["modelName"] if arg_value.lower() in v.lower()]
+        return types.Completion(values=values[:10], total=None, hasMore=None)
+
+    # Suggest status values
+    if arg_name in ("status", "defaultStatus"):
+        values = COMPLETION_VALUES.get("status" if arg_name == "status" else "defaultStatus", [])
+        values = [v for v in values if arg_value.lower() in v.lower()]
+        return types.Completion(values=values, total=None, hasMore=None)
+
+    # Suggest priority values
+    if arg_name == "defaultPriority":
+        values = [v for v in COMPLETION_VALUES["defaultPriority"] if arg_value.lower() in v.lower()]
+        return types.Completion(values=values, total=None, hasMore=None)
+
+    # Suggest channel values
+    if arg_name == "channel":
+        values = [v for v in COMPLETION_VALUES["channel"] if arg_value.lower() in v.lower()]
+        return types.Completion(values=values, total=None, hasMore=None)
+
+    # Suggest tool type values
+    if arg_name == "type":
+        values = [v for v in COMPLETION_VALUES["type"] if arg_value.lower() in v.lower()]
+        return types.Completion(values=values, total=None, hasMore=None)
+
+    # Suggest HTTP method values
+    if arg_name == "method":
+        values = [v for v in COMPLETION_VALUES["method"] if arg_value.lower() in v.lower()]
+        return types.Completion(values=values, total=None, hasMore=None)
+
+    return None
+
+
+# --- Tools ---
 
 
 @app.list_tools()
@@ -27,6 +174,9 @@ async def handle_call_tool(
 ) -> list[types.TextContent | types.ImageContent | types.EmbeddedResource]:
     """Handle tool execution requests."""
     return await registry.call_tool(name, arguments or {})
+
+
+# --- Prompts ---
 
 
 @app.list_prompts()
