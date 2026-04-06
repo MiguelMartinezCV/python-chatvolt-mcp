@@ -51,7 +51,7 @@ Priority: P0 (Critical) → P1 (High) → P2 (Medium) → P3 (Low)
 - [x] Update README with Ralph Loop usage instructions
 
 ## Stats
-- **116 tools** implemented (agents, conversations, artifacts, datastores, CRM, contacts, dispatches, blacklist, Z-API, datasource management, WhatsApp Official, Interactive Messages, Twilio, Mercado Livre, Zapper, Contact Lists, WhatsApp WhiteList)
+- **117 tools** implemented (agents, conversations, artifacts, datastores, CRM, contacts, dispatches, blacklist, Z-API, datasource management, WhatsApp Official, Interactive Messages, Twilio, Mercado Livre, Zapper, Contact Lists, WhatsApp WhiteList)
 - **8 workflow prompts** implemented
 - **67 tests** passing (76% coverage)
 - **All tools have annotations** (title, readOnlyHint, destructiveHint, idempotentHint, openWorldHint)
@@ -68,3 +68,5 @@ Priority: P0 (Critical) → P1 (High) → P2 (Medium) → P3 (Low)
 - **Tools listChanged**: Enabled tools.listChanged capability for real-time tool update notifications
 - **Enhanced agent tools**: create_agent and update_agent now support visibility, handle, interfaceConfig, inactiveHours, external URL configs
 - **New dispatch features**: populate_dispatch_queue, Contact List CRUD operations (list_contact_lists, get_contact_list, create_contact_list, update_contact_list, delete_contact_list)
+- **Agent handles**: Agent tools now support handles (e.g., @my-agent) in addition to UUIDs
+- **New agent discovery**: Added list_agents tool for listing all agents in the organization
