@@ -16,6 +16,7 @@ from .definitions.interactive import TOOLS as INTERACTIVE_TOOLS
 from .definitions.mercadolivre import TOOLS as MERCADOLIVRE_TOOLS
 from .definitions.twilio import TOOLS as TWILIO_TOOLS
 from .definitions.whatsapp_official import TOOLS as WHATSAPP_OFFICIAL_TOOLS
+from .definitions.whitelist import TOOLS as WHITELIST_TOOLS
 from .definitions.zapi import TOOLS as ZAPI_TOOLS
 from .definitions.zapper import TOOLS as ZAPPER_TOOLS
 
@@ -28,6 +29,7 @@ TOOLS_DEFINITION: dict[str, dict[str, Any]] = {
     **CONTACTS_TOOLS,
     **DISPATCHES_TOOLS,
     **BLACKLIST_TOOLS,
+    **WHITELIST_TOOLS,
     **CONVERSATION_MGMT_TOOLS,
     **CRM_SCENARIOS_TOOLS,
     **CRM_LOGS_TOOLS,

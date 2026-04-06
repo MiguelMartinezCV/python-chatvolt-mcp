@@ -51,7 +51,7 @@ Priority: P0 (Critical) → P1 (High) → P2 (Medium) → P3 (Low)
 - [x] Update README with Ralph Loop usage instructions
 
 ## Stats
-- **116 tools** implemented (agents, conversations, artifacts, datastores, CRM, contacts, dispatches, blacklist, Z-API, datasource management, WhatsApp Official, Interactive Messages, Twilio, Mercado Livre, Zapper, Contact Lists)
+- **116 tools** implemented (agents, conversations, artifacts, datastores, CRM, contacts, dispatches, blacklist, Z-API, datasource management, WhatsApp Official, Interactive Messages, Twilio, Mercado Livre, Zapper, Contact Lists, WhatsApp WhiteList)
 - **8 workflow prompts** implemented
 - **67 tests** passing (76% coverage)
 - **All tools have annotations** (title, readOnlyHint, destructiveHint, idempotentHint, openWorldHint)
@@ -61,6 +61,8 @@ Priority: P0 (Critical) → P1 (High) → P2 (Medium) → P3 (Low)
 - **Pagination**: cursor-based pagination support for list operations (list_conversations, list_artifacts, list_contacts, list_dispatches, list_blacklist, list_crm_logs, list_crm_scenarios, list_crm_steps, list_datastores, list_datasources, list_artifact_media, list_contact_lists)
 - **Async retries**: async retry logic with exponential backoff for transient failures
 - **New integrations**: WhatsApp Official API (template messages, templates), Interactive Messages (buttons, list, CTA, location, contact), Twilio SMS, Mercado Livre products, Zapper messaging
+- **WhatsApp WhiteList**: Add/get/update/delete whitelist numbers for agents
+- **Conversation enhancements**: Send message by channel, assign conversation, set priority, update status, custom variables, notes management
 - **Logging**: MCP logging capability with setLevel handler for client-configurable verbosity
 - **Server metadata**: Added version, instructions to Server initialization
 - **Tools listChanged**: Enabled tools.listChanged capability for real-time tool update notifications
