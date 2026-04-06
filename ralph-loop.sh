@@ -15,7 +15,7 @@ RALPH_FILE="$RALPH_DIR/RALPH.md"
 GUARDRAILS_FILE="$RALPH_DIR/.ralph/guardrails.md"
 MAX_ITERATIONS=""
 DRY_RUN=false
-AGENT_CMD="opencode run --print"
+AGENT_CMD="opencode run"
 
 # Colors
 RED='\033[0;31m'
@@ -190,7 +190,7 @@ echo -e "${BLUE}Commands: ${CMD_NAMES[*]}${NC}"
 echo ""
 
 while true; do
-    ((ITERATION++))
+    ITERATION=$((ITERATION + 1))
 
     if [[ -n "$MAX_ITERATIONS" && $ITERATION -gt $MAX_ITERATIONS ]]; then
         echo -e "${GREEN}✓ Reached max iterations ($MAX_ITERATIONS)${NC}"
@@ -225,7 +225,7 @@ while true; do
 
     # Run agent
     echo -e "${BLUE}Running agent...${NC}"
-    if eval "$AGENT_CMD" < "$tmp_prompt"; then
+    if eval "$AGENT_CMD" "Follow the instructions in the attached file. Work through the tasks, make changes, and commit them." --file "$tmp_prompt"; then
         echo -e "${GREEN}✓ Agent completed successfully${NC}"
     else
         echo -e "${YELLOW}⚠ Agent exited with non-zero status${NC}"

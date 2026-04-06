@@ -1,5 +1,5 @@
 ---
-agent: opencode run --print
+agent: opencode run
 commands:
   - name: tests
     run: uv run pytest -v --tb=short 2>&1
