@@ -111,6 +111,12 @@ class TestNewTools:
         for name in ["list_blacklist", "add_to_blacklist", "remove_from_blacklist"]:
             assert name in names, f"Missing blacklist tool: {name}"
 
+    @pytest.mark.asyncio
+    async def test_artifact_tools_complete(self):
+        tools = await handle_list_tools()
+        names = [t.name for t in tools]
+        assert "delete_artifact" in names, "Missing delete_artifact tool"
+
 
 class TestNewToolCalls:
     @pytest.mark.asyncio
@@ -118,6 +124,18 @@ class TestNewToolCalls:
     async def test_delete_agent(self, registry):
         route = respx.delete("https://api.chatvolt.ai/agents/123").respond(status_code=200, json={"deleted": True})
         result = await registry.call_tool("delete_agent", {"id": "123"})
+        assert len(result) == 1
+        parsed = json.loads(result[0].text)
+        assert parsed == {"deleted": True}
+        assert route.called
+
+    @pytest.mark.asyncio
+    @respx.mock
+    async def test_delete_artifact(self, registry):
+        route = respx.delete("https://api.chatvolt.ai/artifacts/art_123").respond(
+            status_code=200, json={"deleted": True}
+        )
+        result = await registry.call_tool("delete_artifact", {"id": "art_123"})
         assert len(result) == 1
         parsed = json.loads(result[0].text)
         assert parsed == {"deleted": True}

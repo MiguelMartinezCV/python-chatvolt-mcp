@@ -1,6 +1,8 @@
 import json
 import os
+import random
 import re
+import time
 from typing import Any
 
 import httpx
@@ -8,6 +10,11 @@ from mcp import types
 
 from src.config import CHATVOLT_API_KEY, CHATVOLT_BASE_URL
 from src.tools.definitions import TOOLS_DEFINITION
+
+MAX_RETRIES = 3
+BASE_DELAY = 1.0
+MAX_DELAY = 30.0
+RETRYABLE_STATUS_CODES = {429, 500, 502, 503, 504}
 
 TOOL_ANNOTATIONS = {
     "query_agent": {
@@ -600,6 +607,39 @@ def _make_annotations(name: str) -> types.ToolAnnotations | None:
     )
 
 
+def _validate_arguments(schema: dict, arguments: dict) -> list[str] | None:
+    """Validate arguments against the tool's inputSchema."""
+    if not schema:
+        return None
+
+    errors = []
+    properties = schema.get("properties", {})
+    required = schema.get("required", [])
+
+    for req_field in required:
+        if req_field not in arguments:
+            errors.append(f"Missing required field: {req_field}")
+
+    for field, value in arguments.items():
+        if field not in properties:
+            continue
+        field_schema = properties[field]
+        field_type = field_schema.get("type")
+
+        if field_type == "string" and not isinstance(value, str):
+            errors.append(f"Field '{field}' must be a string")
+        elif field_type == "integer" and not isinstance(value, int):
+            errors.append(f"Field '{field}' must be an integer")
+        elif field_type == "number" and not isinstance(value, (int, float)):
+            errors.append(f"Field '{field}' must be a number")
+        elif field_type == "boolean" and not isinstance(value, bool):
+            errors.append(f"Field '{field}' must be a boolean")
+        elif field_type == "array" and not isinstance(value, list):
+            errors.append(f"Field '{field}' must be an array")
+
+    return errors if errors else None
+
+
 def _structured_result(text: str, is_error: bool = False) -> list[types.TextContent | types.EmbeddedResource]:
     """Return both text and structured content for backwards compatibility."""
     return [types.TextContent(type="text", text=text)]
@@ -631,6 +671,13 @@ class ToolRegistry:
         tool_info = self.tools[name]
         method = tool_info["method"]
         path = tool_info["path"]
+        input_schema = tool_info.get("input_schema", {})
+
+        validation_errors = _validate_arguments(input_schema, arguments or {})
+        if validation_errors:
+            return _structured_result(
+                json.dumps({"error": True, "status": 400, "message": validation_errors}), is_error=True
+            )
 
         args_copy = arguments.copy()
 
@@ -668,67 +715,92 @@ class ToolRegistry:
         if name != "get_models":
             headers["Authorization"] = f"Bearer {CHATVOLT_API_KEY}"
 
-        async with httpx.AsyncClient() as client:
-            try:
-                if name == "upload_artifact_media" or (name == "create_datasource" and arguments.get("type") == "file"):
-                    file_path = arguments.get("file_path")
-                    if not file_path or not os.path.exists(file_path):
-                        return _structured_result(
-                            json.dumps({"error": True, "status": 400, "message": f"File not found: {file_path}"}),
-                            is_error=True,
-                        )
-
-                    with open(file_path, "rb") as f:
-                        files = {
-                            "file": (os.path.basename(file_path), f),
-                        }
-
-                        if name == "upload_artifact_media":
-                            data = {
-                                "artifact_id": arguments.get("artifact_id"),
-                                "name": arguments.get("name"),
-                                "alt_description": arguments.get("alt_description", ""),
-                            }
-                        else:  # create_datasource
-                            data = {
-                                "type": "file",
-                                "datastoreId": arguments.get("datastoreId"),
-                                "fileName": arguments.get("fileName") or os.path.basename(file_path),
-                                "custom_id": arguments.get("custom_id", ""),
-                            }
-
-                        # Remove Content-Type from headers as httpx will set it with the boundary
-                        headers.pop("Content-Type", None)
-
-                        response = await client.post(
-                            url,
-                            headers=headers,
-                            data=data,
-                            files=files,
-                            timeout=60.0,  # Increased timeout for uploads
-                        )
-                else:
-                    response = await client.request(
-                        method=method,
-                        url=url,
-                        headers=headers,
-                        params=query_params,
-                        json=json_body if json_body else None,
-                        timeout=30.0,
+        async def make_request(
+            client: httpx.AsyncClient,
+        ) -> httpx.Response:
+            if name == "upload_artifact_media" or (name == "create_datasource" and arguments.get("type") == "file"):
+                file_path = arguments.get("file_path")
+                if not file_path or not os.path.exists(file_path):
+                    return _structured_result(
+                        json.dumps({"error": True, "status": 400, "message": f"File not found: {file_path}"}),
+                        is_error=True,
                     )
 
-                response.raise_for_status()
-                return _structured_result(response.text)
-            except httpx.HTTPStatusError as e:
-                return _structured_result(
-                    json.dumps({"error": True, "status": e.response.status_code, "message": e.response.text}),
-                    is_error=True,
+                with open(file_path, "rb") as f:
+                    files = {
+                        "file": (os.path.basename(file_path), f),
+                    }
+
+                    if name == "upload_artifact_media":
+                        data = {
+                            "artifact_id": arguments.get("artifact_id"),
+                            "name": arguments.get("name"),
+                            "alt_description": arguments.get("alt_description", ""),
+                        }
+                    else:
+                        data = {
+                            "type": "file",
+                            "datastoreId": arguments.get("datastoreId"),
+                            "fileName": arguments.get("fileName") or os.path.basename(file_path),
+                            "custom_id": arguments.get("custom_id", ""),
+                        }
+
+                    headers.pop("Content-Type", None)
+
+                    return await client.post(
+                        url,
+                        headers=headers,
+                        data=data,
+                        files=files,
+                        timeout=60.0,
+                    )
+            else:
+                return await client.request(
+                    method=method,
+                    url=url,
+                    headers=headers,
+                    params=query_params,
+                    json=json_body if json_body else None,
+                    timeout=30.0,
                 )
-            except Exception as e:
-                return _structured_result(
-                    json.dumps({"error": True, "status": 500, "message": str(e)}),
-                    is_error=True,
-                )
+
+        last_exception = None
+        async with httpx.AsyncClient() as client:
+            for attempt in range(MAX_RETRIES):
+                try:
+                    response = await make_request(client)
+                    response.raise_for_status()
+                    return _structured_result(response.text)
+                except httpx.HTTPStatusError as e:
+                    status_code = e.response.status_code
+                    if status_code in RETRYABLE_STATUS_CODES and attempt < MAX_RETRIES - 1:
+                        delay = min(BASE_DELAY * (2**attempt) + random.uniform(0, 1), MAX_DELAY)
+                        if status_code == 429:
+                            retry_after = e.response.headers.get("retry-after")
+                            if retry_after:
+                                delay = min(float(retry_after), MAX_DELAY)
+                        time.sleep(delay)
+                        last_exception = e
+                        continue
+                    return _structured_result(
+                        json.dumps({"error": True, "status": e.response.status_code, "message": e.response.text}),
+                        is_error=True,
+                    )
+                except httpx.RequestError as e:
+                    if attempt < MAX_RETRIES - 1:
+                        delay = min(BASE_DELAY * (2**attempt) + random.uniform(0, 1), MAX_DELAY)
+                        time.sleep(delay)
+                        last_exception = e
+                        continue
+                    return _structured_result(
+                        json.dumps({"error": True, "status": 500, "message": str(e)}),
+                        is_error=True,
+                    )
+
+        return _structured_result(
+            json.dumps({"error": True, "status": 500, "message": str(last_exception)}),
+            is_error=True,
+        )
 
 
 # Singleton instance

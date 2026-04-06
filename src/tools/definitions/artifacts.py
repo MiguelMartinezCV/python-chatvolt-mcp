@@ -197,6 +197,16 @@ TOOLS: dict[str, dict[str, Any]] = {
             "required": ["id"],
         },
     },
+    "delete_artifact": {
+        "method": "DELETE",
+        "path": "/artifacts/{id}",
+        "description": "Delete a specific artifact (product or service).",
+        "input_schema": {
+            "type": "object",
+            "properties": {"id": {"type": "string", "description": "ID of the artifact to delete"}},
+            "required": ["id"],
+        },
+    },
     "delete_artifact_category": {
         "method": "DELETE",
         "path": "/artifact-categories/{id}",
