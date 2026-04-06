@@ -1,6 +1,6 @@
 import pytest
 
-from src.server import LOG_LEVELS, handle_list_prompts, handle_list_tools, handle_set_logging_level
+from src.server import LOG_LEVELS, app, handle_list_prompts, handle_list_tools, handle_set_logging_level
 
 
 @pytest.mark.asyncio
@@ -40,3 +40,23 @@ async def test_set_logging_level_invalid():
 
     with pytest.raises(ValueError):
         await handle_set_logging_level("DEBUG")
+
+
+def test_server_initialization():
+    """Test that server has proper metadata and capabilities."""
+    init_opts = app.create_initialization_options()
+    assert init_opts.server_name == "chatvolt-mcp"
+    assert init_opts.server_version == "1.0.0"
+    assert init_opts.instructions is not None
+    assert "Chatvolt" in init_opts.instructions
+    assert init_opts.capabilities.tools is not None
+
+
+def test_server_capabilities_basic():
+    """Test that server declares basic tool capabilities."""
+    init_opts = app.create_initialization_options()
+    caps = init_opts.capabilities
+    assert caps.tools is not None
+    assert caps.resources is not None
+    assert caps.prompts is not None
+    assert caps.completions is not None

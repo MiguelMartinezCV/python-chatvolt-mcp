@@ -16,7 +16,11 @@ from src.tools.loader import registry
 
 logger = logging.getLogger("chatvolt-mcp")
 
-app = Server("chatvolt-mcp")
+app = Server(
+    "chatvolt-mcp",
+    version="1.0.0",
+    instructions="MCP server for Chatvolt AI platform. Provides tools for managing agents, conversations, contacts, dispatches, and more.",
+)
 
 LOG_LEVELS = {"debug", "info", "notice", "warning", "error", "critical", "alert", "emergency"}
 

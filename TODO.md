@@ -60,3 +60,5 @@ Priority: P0 (Critical) → P1 (High) → P2 (Medium) → P3 (Low)
 - **Async retries**: async retry logic with exponential backoff for transient failures
 - **New integrations**: WhatsApp Official API (template messages, templates), Interactive Messages (buttons, list, CTA, location, contact), Twilio SMS, Mercado Livre products, Zapper messaging
 - **Logging**: MCP logging capability with setLevel handler for client-configurable verbosity
+- **Server metadata**: Added version, instructions to Server initialization
+- **Tools listChanged**: Enabled tools.listChanged capability for real-time tool update notifications
