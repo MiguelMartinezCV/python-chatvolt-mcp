@@ -4,7 +4,8 @@
 #
 # Usage:
 #   ./ralph-loop.sh              # Run until all checks pass
-#   ./ralph-loop.sh -n 5         # Run exactly 5 iterations
+#   ./ralph-loop.sh -n 5         # Run exactly N iterations
+#   ./ralph-loop.sh --unlimited  # Run forever, auto-restart after checks pass
 #   ./ralph-loop.sh --dry-run    # Show what would happen without running
 
 set -euo pipefail
@@ -15,6 +16,7 @@ RALPH_FILE="$RALPH_DIR/RALPH.md"
 GUARDRAILS_FILE="$RALPH_DIR/.ralph/guardrails.md"
 MAX_ITERATIONS=""
 DRY_RUN=false
+UNLIMITED_MODE=false
 AGENT_CMD="opencode run"
 
 # Colors
@@ -29,9 +31,10 @@ usage() {
     echo ""
     echo "Options:"
     echo "  -n, --iterations N    Run exactly N iterations"
-    echo "  --agent CMD           Override agent command (default: opencode run --print)"
+    echo "  --unlimited          Run forever, auto-restart after checks pass"
+    echo "  --agent CMD          Override agent command (default: opencode run)"
     echo "  --dry-run             Show assembled prompt without running agent"
-    echo "  -h, --help            Show this help message"
+    echo "  -h, --help           Show this help message"
     exit 0
 }
 
@@ -41,6 +44,10 @@ while [[ $# -gt 0 ]]; do
         -n|--iterations)
             MAX_ITERATIONS="$2"
             shift 2
+            ;;
+        --unlimited)
+            UNLIMITED_MODE=true
+            shift
             ;;
         --agent)
             AGENT_CMD="$2"
@@ -175,7 +182,9 @@ echo -e "${GREEN}║   Chatvolt MCP - Ralph Loop              ║${NC}"
 echo -e "${GREEN}╚══════════════════════════════════════════╝${NC}"
 echo ""
 echo -e "${BLUE}Agent: ${AGENT_CMD}${NC}"
-if [[ -n "$MAX_ITERATIONS" ]]; then
+if [[ "$UNLIMITED_MODE" == true ]]; then
+    echo -e "${BLUE}Mode: UNLIMITED - auto-restart forever${NC}"
+elif [[ -n "$MAX_ITERATIONS" ]]; then
     echo -e "${BLUE}Max iterations: ${MAX_ITERATIONS}${NC}"
 else
     echo -e "${BLUE}Max iterations: unlimited (Ctrl+C to stop)${NC}"
@@ -257,9 +266,17 @@ while true; do
     if $tests_pass && $lint_pass && $format_pass; then
         echo ""
         echo -e "${GREEN}╔══════════════════════════════════════════╗${NC}"
-        echo -e "${GREEN}║   All checks passed! Loop complete.      ║${NC}"
-        echo -e "${GREEN}╚══════════════════════════════════════════╝${NC}"
-        break
+        if [[ "$UNLIMITED_MODE" == true ]]; then
+            echo -e "${GREEN}║   ✓ All checks passed! Restarting...     ║${NC}"
+            echo -e "${GREEN}╚══════════════════════════════════════════╝${NC}"
+            echo ""
+            sleep 1
+            continue
+        else
+            echo -e "${GREEN}║   All checks passed! Loop complete.      ║${NC}"
+            echo -e "${GREEN}╚══════════════════════════════════════════╝${NC}"
+            break
+        fi
     fi
 
     echo ""
