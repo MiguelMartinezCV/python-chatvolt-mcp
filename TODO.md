@@ -51,7 +51,7 @@ Priority: P0 (Critical) → P1 (High) → P2 (Medium) → P3 (Low)
 ## Stats
 - **108 tools** implemented (agents, conversations, artifacts, datastores, CRM, contacts, dispatches, blacklist, Z-API, datasource management, WhatsApp Official, Interactive Messages, Twilio, Mercado Livre, Zapper)
 - **8 workflow prompts** implemented
-- **37 tests** passing
+- **67 tests** passing (76% coverage)
 - **All tools have annotations** (title, readOnlyHint, destructiveHint, idempotentHint, openWorldHint)
 - **Resources**: models, tools, prompts, agent templates
 - **Completions**: modelName, status, channel, type, method, priority
