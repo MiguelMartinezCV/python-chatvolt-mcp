@@ -117,9 +117,13 @@ async def test_read_resource_unknown():
 async def test_list_resource_templates():
     """Test listing resource templates."""
     templates = await handle_list_resource_templates()
-    assert len(templates) == 1
-    assert templates[0].name == "Agent Configuration"
-    assert "chatvolt://agent/{agentId}" in templates[0].uriTemplate
+    assert len(templates) == 5
+    template_names = [t.name for t in templates]
+    assert "Agent Configuration" in template_names
+    assert "Conversation Details" in template_names
+    assert "Contact Profile" in template_names
+    assert "Dispatch Details" in template_names
+    assert "Datastore Configuration" in template_names
 
 
 @pytest.mark.asyncio

@@ -137,6 +137,30 @@ async def handle_list_resource_templates() -> list[types.ResourceTemplate]:
             description="Get the configuration of a specific agent",
             mimeType="application/json",
         ),
+        types.ResourceTemplate(
+            uriTemplate="chatvolt://conversation/{conversationId}",
+            name="Conversation Details",
+            description="Get detailed information about a specific conversation",
+            mimeType="application/json",
+        ),
+        types.ResourceTemplate(
+            uriTemplate="chatvolt://contact/{contactId}",
+            name="Contact Profile",
+            description="Get detailed information about a specific contact",
+            mimeType="application/json",
+        ),
+        types.ResourceTemplate(
+            uriTemplate="chatvolt://dispatch/{dispatchId}",
+            name="Dispatch Details",
+            description="Get detailed information about a specific dispatch",
+            mimeType="application/json",
+        ),
+        types.ResourceTemplate(
+            uriTemplate="chatvolt://datastore/{datastoreId}",
+            name="Datastore Configuration",
+            description="Get detailed information about a specific datastore",
+            mimeType="application/json",
+        ),
     ]
 
 
@@ -156,11 +180,30 @@ COMPLETION_VALUES = {
         "llama-3-70b",
     ],
     "status": ["RESOLVED", "UNRESOLVED", "HUMAN_REQUESTED"],
-    "channel": ["whatsapp", "telegram", "zapi", "instagram"],
-    "type": ["http", "datastore", "mark_as_resolved", "request_human", "delayed_responses", "follow_up_messages"],
+    "channel": ["whatsapp", "telegram", "zapi", "instagram", "website", "twilio"],
+    "type": [
+        "http",
+        "datastore",
+        "mark_as_resolved",
+        "request_human",
+        "delayed_responses",
+        "follow_up_messages",
+    ],
     "method": ["GET", "POST", "PUT", "DELETE", "PATCH"],
     "defaultStatus": ["RESOLVED", "UNRESOLVED", "HUMAN_REQUESTED", "null"],
     "defaultPriority": ["LOW", "MEDIUM", "HIGH", "null"],
+    "visibility": ["public", "private"],
+    "priority": ["LOW", "MEDIUM", "HIGH", "URGENT"],
+    "direction": ["inbound", "outbound"],
+    "messageType": ["text", "image", "audio", "video", "document", "sticker"],
+    "toolType": [
+        "http",
+        "datastore",
+        "mark_as_resolved",
+        "request_human",
+        "delayed_responses",
+        "follow_up_messages",
+    ],
 }
 
 
@@ -186,8 +229,8 @@ async def handle_complete(
         return types.Completion(values=values, total=None, hasMore=None)
 
     # Suggest priority values
-    if arg_name == "defaultPriority":
-        values = [v for v in COMPLETION_VALUES["defaultPriority"] if arg_value.lower() in v.lower()]
+    if arg_name in ("defaultPriority", "priority"):
+        values = [v for v in COMPLETION_VALUES["priority"] if arg_value.lower() in v.lower()]
         return types.Completion(values=values, total=None, hasMore=None)
 
     # Suggest channel values
@@ -196,13 +239,28 @@ async def handle_complete(
         return types.Completion(values=values, total=None, hasMore=None)
 
     # Suggest tool type values
-    if arg_name == "type":
+    if arg_name in ("type", "toolType"):
         values = [v for v in COMPLETION_VALUES["type"] if arg_value.lower() in v.lower()]
         return types.Completion(values=values, total=None, hasMore=None)
 
     # Suggest HTTP method values
     if arg_name == "method":
         values = [v for v in COMPLETION_VALUES["method"] if arg_value.lower() in v.lower()]
+        return types.Completion(values=values, total=None, hasMore=None)
+
+    # Suggest visibility values
+    if arg_name == "visibility":
+        values = [v for v in COMPLETION_VALUES["visibility"] if arg_value.lower() in v.lower()]
+        return types.Completion(values=values, total=None, hasMore=None)
+
+    # Suggest direction values
+    if arg_name == "direction":
+        values = [v for v in COMPLETION_VALUES["direction"] if arg_value.lower() in v.lower()]
+        return types.Completion(values=values, total=None, hasMore=None)
+
+    # Suggest message type values
+    if arg_name == "messageType":
+        values = [v for v in COMPLETION_VALUES["messageType"] if arg_value.lower() in v.lower()]
         return types.Completion(values=values, total=None, hasMore=None)
 
     return None
