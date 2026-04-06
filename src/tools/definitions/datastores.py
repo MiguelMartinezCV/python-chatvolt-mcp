@@ -4,12 +4,12 @@ TOOLS: dict[str, dict[str, Any]] = {
     "list_datastores": {
         "method": "GET",
         "path": "/datastores/list",
-        "description": "Retrieves a paginated list of all datastores belonging to the organization.",
+        "description": "Retrieves a paginated list of all datastores belonging to the organization. Supports cursor-based pagination.",
         "input_schema": {
             "type": "object",
             "properties": {
-                "offset": {"type": "integer", "default": 0, "description": "Number of items to skip"},
-                "limit": {"type": "integer", "default": 20, "description": "Maximum number of items to return"},
+                "cursor": {"type": "string", "description": "Pagination cursor for fetching next page of results"},
+                "limit": {"type": "integer", "default": 50, "description": "Number of results to return (max 100)"},
             },
         },
     },
@@ -114,13 +114,13 @@ TOOLS: dict[str, dict[str, Any]] = {
     "list_datasources": {
         "method": "GET",
         "path": "/datasources/list",
-        "description": "Retrieves a paginated list of all datasources belonging to a specific datastore.",
+        "description": "Retrieves a paginated list of all datasources belonging to a specific datastore. Supports cursor-based pagination.",
         "input_schema": {
             "type": "object",
             "properties": {
                 "datastoreId": {"type": "string", "description": "ID of the datastore to list datasources from"},
-                "offset": {"type": "integer", "default": 0, "description": "Number of items to skip"},
-                "limit": {"type": "integer", "default": 20, "description": "Maximum number of items to return"},
+                "cursor": {"type": "string", "description": "Pagination cursor for fetching next page of results"},
+                "limit": {"type": "integer", "default": 50, "description": "Number of results to return (max 100)"},
             },
             "required": ["datastoreId"],
         },

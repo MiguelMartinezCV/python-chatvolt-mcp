@@ -4,7 +4,7 @@ TOOLS: dict[str, dict[str, Any]] = {
     "list_dispatches": {
         "method": "GET",
         "path": "/dispatches",
-        "description": "List all dispatches (broadcast campaigns), optionally filtered by status or date.",
+        "description": "List all dispatches (broadcast campaigns), optionally filtered by status or date. Supports cursor-based pagination.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -14,8 +14,8 @@ TOOLS: dict[str, dict[str, Any]] = {
                     "description": "Filter by dispatch status",
                 },
                 "createdAt": {"type": "string", "description": "Filter by creation date (e.g., 'YYYY-MM-DD HH:mm:ss')"},
-                "limit": {"type": "integer", "description": "Maximum number of dispatches to return"},
-                "offset": {"type": "integer", "description": "Number of dispatches to skip for pagination"},
+                "cursor": {"type": "string", "description": "Pagination cursor for fetching next page of results"},
+                "limit": {"type": "integer", "default": 50, "description": "Number of results to return (max 100)"},
             },
         },
     },

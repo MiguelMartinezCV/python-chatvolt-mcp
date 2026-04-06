@@ -4,16 +4,28 @@ TOOLS: dict[str, dict[str, Any]] = {
     "list_crm_scenarios": {
         "method": "GET",
         "path": "/crm/scenario",
-        "description": "List all CRM Scenarios, optionally filtered by agentId.",
-        "input_schema": {"type": "object", "properties": {"agentId": {"type": "string"}}},
+        "description": "List all CRM Scenarios, optionally filtered by agentId. Supports cursor-based pagination.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "agentId": {"type": "string", "description": "Filter by agent ID"},
+                "cursor": {"type": "string", "description": "Pagination cursor for fetching next page of results"},
+                "limit": {"type": "integer", "default": 50, "description": "Number of results to return (max 100)"},
+            },
+        },
     },
     "list_crm_steps": {
         "method": "GET",
         "path": "/crm/step",
-        "description": "List CRM steps for a given scenario.",
+        "description": "List CRM steps for a given scenario. Supports cursor-based pagination.",
         "input_schema": {
             "type": "object",
-            "properties": {"scenarioId": {"type": "string"}, "agentId": {"type": "string"}},
+            "properties": {
+                "scenarioId": {"type": "string", "description": "Filter by CRM scenario ID"},
+                "agentId": {"type": "string", "description": "Filter by agent ID"},
+                "cursor": {"type": "string", "description": "Pagination cursor for fetching next page of results"},
+                "limit": {"type": "integer", "default": 50, "description": "Number of results to return (max 100)"},
+            },
             "required": ["scenarioId"],
         },
     },

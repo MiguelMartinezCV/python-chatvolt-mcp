@@ -42,6 +42,7 @@ Priority: P0 (Critical) → P1 (High) → P2 (Medium) → P3 (Low)
 - [x] Add Image/Audio content support for artifact media
 - [x] Add MCP-level pagination (cursors for list operations)
 - [x] Update README with complete documentation
+- [x] Add async retry logic with exponential backoff for transient failures
 
 ## Ralph Loop
 - [x] Update Ralph Loop to auto-fetch docs when idle
@@ -55,3 +56,5 @@ Priority: P0 (Critical) → P1 (High) → P2 (Medium) → P3 (Low)
 - **Resources**: models, tools, prompts, agent templates
 - **Completions**: modelName, status, channel, type, method, priority
 - **Structured errors**: {error, status, message}
+- **Pagination**: cursor-based pagination support for list operations (list_conversations, list_artifacts, list_contacts, list_dispatches, list_blacklist, list_crm_logs, list_crm_scenarios, list_crm_steps, list_datastores, list_datasources, list_artifact_media)
+- **Async retries**: async retry logic with exponential backoff for transient failures

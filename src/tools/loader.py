@@ -1,8 +1,8 @@
+import asyncio
 import json
 import os
 import random
 import re
-import time
 from typing import Any
 
 import httpx
@@ -779,7 +779,7 @@ class ToolRegistry:
                             retry_after = e.response.headers.get("retry-after")
                             if retry_after:
                                 delay = min(float(retry_after), MAX_DELAY)
-                        time.sleep(delay)
+                        await asyncio.sleep(delay)
                         last_exception = e
                         continue
                     return _structured_result(
@@ -789,7 +789,7 @@ class ToolRegistry:
                 except httpx.RequestError as e:
                     if attempt < MAX_RETRIES - 1:
                         delay = min(BASE_DELAY * (2**attempt) + random.uniform(0, 1), MAX_DELAY)
-                        time.sleep(delay)
+                        await asyncio.sleep(delay)
                         last_exception = e
                         continue
                     return _structured_result(

@@ -4,7 +4,7 @@ TOOLS: dict[str, dict[str, Any]] = {
     "list_contacts": {
         "method": "GET",
         "path": "/contacts",
-        "description": "List all contacts, optionally filtered by search query, tags, or date range.",
+        "description": "List all contacts, optionally filtered by search query, tags, or date range. Supports cursor-based pagination.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -14,8 +14,8 @@ TOOLS: dict[str, dict[str, Any]] = {
                 },
                 "tags": {"type": "array", "items": {"type": "string"}, "description": "Filter contacts by tags"},
                 "createdAt": {"type": "string", "description": "Filter by creation date (e.g., 'YYYY-MM-DD HH:mm:ss')"},
-                "limit": {"type": "integer", "description": "Maximum number of contacts to return"},
-                "offset": {"type": "integer", "description": "Number of contacts to skip for pagination"},
+                "cursor": {"type": "string", "description": "Pagination cursor for fetching next page of results"},
+                "limit": {"type": "integer", "default": 50, "description": "Number of results to return (max 100)"},
             },
         },
     },

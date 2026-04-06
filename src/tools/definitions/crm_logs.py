@@ -4,7 +4,7 @@ TOOLS: dict[str, dict[str, Any]] = {
     "list_crm_logs": {
         "method": "GET",
         "path": "/crm/logs",
-        "description": "List CRM conversation logs with optional filters.",
+        "description": "List CRM conversation logs with optional filters. Supports cursor-based pagination.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -18,8 +18,8 @@ TOOLS: dict[str, dict[str, Any]] = {
                 },
                 "from": {"type": "string", "description": "Start date filter (YYYY-MM-DD)"},
                 "to": {"type": "string", "description": "End date filter (YYYY-MM-DD)"},
-                "limit": {"type": "integer", "description": "Maximum number of logs to return"},
-                "offset": {"type": "integer", "description": "Number of logs to skip for pagination"},
+                "cursor": {"type": "string", "description": "Pagination cursor for fetching next page of results"},
+                "limit": {"type": "integer", "default": 50, "description": "Number of results to return (max 100)"},
             },
         },
     },

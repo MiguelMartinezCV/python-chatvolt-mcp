@@ -4,13 +4,13 @@ TOOLS: dict[str, dict[str, Any]] = {
     "list_blacklist": {
         "method": "GET",
         "path": "/agents/{agentId}/blacklist",
-        "description": "List all blacklisted users for a specific agent.",
+        "description": "List all blacklisted users for a specific agent. Supports cursor-based pagination.",
         "input_schema": {
             "type": "object",
             "properties": {
                 "agentId": {"type": "string", "description": "ID of the agent"},
-                "limit": {"type": "integer", "description": "Maximum number of entries to return"},
-                "offset": {"type": "integer", "description": "Number of entries to skip for pagination"},
+                "cursor": {"type": "string", "description": "Pagination cursor for fetching next page of results"},
+                "limit": {"type": "integer", "default": 50, "description": "Number of results to return (max 100)"},
             },
             "required": ["agentId"],
         },

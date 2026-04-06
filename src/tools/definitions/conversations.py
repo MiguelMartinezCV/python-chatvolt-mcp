@@ -34,7 +34,7 @@ TOOLS: dict[str, dict[str, Any]] = {
     "list_conversations": {
         "method": "GET",
         "path": "/conversation",
-        "description": "Search for conversations by agent ID, creation date, and status.",
+        "description": "Search for conversations by agent ID, creation date, and status. Supports pagination with cursor and limit.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -48,6 +48,8 @@ TOOLS: dict[str, dict[str, Any]] = {
                     "enum": ["RESOLVED", "UNRESOLVED", "HUMAN_REQUESTED"],
                     "description": "Filter by status",
                 },
+                "cursor": {"type": "string", "description": "Pagination cursor for fetching next page of results"},
+                "limit": {"type": "integer", "default": 50, "description": "Number of results to return (max 100)"},
             },
         },
     },

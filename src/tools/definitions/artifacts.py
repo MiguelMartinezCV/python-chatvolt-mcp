@@ -36,13 +36,15 @@ TOOLS: dict[str, dict[str, Any]] = {
     "list_artifacts": {
         "method": "GET",
         "path": "/artifacts",
-        "description": "List all artifacts for the organization with basic filtering.",
+        "description": "List all artifacts for the organization with basic filtering. Supports pagination with cursor and limit.",
         "input_schema": {
             "type": "object",
             "properties": {
                 "categoryId": {"type": "string", "description": "Filter by category ID"},
                 "name": {"type": "string", "description": "Filter by exact name match"},
                 "search": {"type": "string", "description": "General search string (name, description, id)"},
+                "cursor": {"type": "string", "description": "Pagination cursor for fetching next page of results"},
+                "limit": {"type": "integer", "default": 50, "description": "Number of results to return (max 100)"},
             },
         },
     },
@@ -96,7 +98,7 @@ TOOLS: dict[str, dict[str, Any]] = {
     "list_artifact_media": {
         "method": "GET",
         "path": "/artifacts/media",
-        "description": "List all media associated with a specific artifact.",
+        "description": "List all media associated with a specific artifact. Supports cursor-based pagination.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -107,6 +109,8 @@ TOOLS: dict[str, dict[str, Any]] = {
                     "enum": ["IMAGE", "VIDEO", "AUDIO", "DOCUMENT", "OTHER", "all"],
                     "description": "Filter by media type",
                 },
+                "cursor": {"type": "string", "description": "Pagination cursor for fetching next page of results"},
+                "limit": {"type": "integer", "default": 50, "description": "Number of results to return (max 100)"},
             },
             "required": ["artifact_id"],
         },
