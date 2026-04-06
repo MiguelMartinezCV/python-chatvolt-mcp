@@ -4,10 +4,15 @@ from .definitions.agents import TOOLS as AGENTS_TOOLS
 from .definitions.artifacts import TOOLS as ARTIFACTS_TOOLS
 from .definitions.blacklist import TOOLS as BLACKLIST_TOOLS
 from .definitions.contacts import TOOLS as CONTACTS_TOOLS
+from .definitions.conversation_mgmt import TOOLS as CONVERSATION_MGMT_TOOLS
 from .definitions.conversations import TOOLS as CONVERSATIONS_TOOLS
 from .definitions.crm import TOOLS as CRM_TOOLS
+from .definitions.crm_logs import TOOLS as CRM_LOGS_TOOLS
+from .definitions.crm_scenarios import TOOLS as CRM_SCENARIOS_TOOLS
+from .definitions.datasources import TOOLS as DATASOURCES_TOOLS
 from .definitions.datastores import TOOLS as DATASTORES_TOOLS
 from .definitions.dispatches import TOOLS as DISPATCHES_TOOLS
+from .definitions.zapi import TOOLS as ZAPI_TOOLS
 
 TOOLS_DEFINITION: dict[str, dict[str, Any]] = {
     **AGENTS_TOOLS,
@@ -18,4 +23,9 @@ TOOLS_DEFINITION: dict[str, dict[str, Any]] = {
     **CONTACTS_TOOLS,
     **DISPATCHES_TOOLS,
     **BLACKLIST_TOOLS,
+    **CONVERSATION_MGMT_TOOLS,
+    **CRM_SCENARIOS_TOOLS,
+    **CRM_LOGS_TOOLS,
+    **DATASOURCES_TOOLS,
+    **ZAPI_TOOLS,
 }
