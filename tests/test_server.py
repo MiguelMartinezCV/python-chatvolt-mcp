@@ -72,6 +72,7 @@ def test_server_capabilities_basic():
     assert caps.resources is not None
     assert caps.prompts is not None
     assert caps.completions is not None
+    assert caps.logging is not None
 
 
 @pytest.mark.asyncio

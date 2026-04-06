@@ -64,3 +64,4 @@ Priority: P0 (Critical) → P1 (High) → P2 (Medium) → P3 (Low)
 - **Logging**: MCP logging capability with setLevel handler for client-configurable verbosity
 - **Server metadata**: Added version, instructions to Server initialization
 - **Tools listChanged**: Enabled tools.listChanged capability for real-time tool update notifications
+- **Enhanced agent tools**: create_agent and update_agent now support visibility, handle, interfaceConfig, inactiveHours, external URL configs

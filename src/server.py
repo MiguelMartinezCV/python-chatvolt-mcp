@@ -205,6 +205,22 @@ COMPLETION_VALUES = {
         "delayed_responses",
         "follow_up_messages",
     ],
+    "webhookType": ["whatsapp", "telegram", "zapi", "instagram"],
+    "integrationType": [
+        "http",
+        "datastore",
+        "mark_as_resolved",
+        "request_human",
+        "delayed_responses",
+        "follow_up_messages",
+        "form",
+    ],
+    "contentType": [
+        "application/json",
+        "application/x-www-form-urlencoded",
+        "multipart/form-data",
+        "text/plain",
+    ],
 }
 
 
@@ -262,6 +278,26 @@ async def handle_complete(
     # Suggest message type values
     if arg_name == "messageType":
         values = [v for v in COMPLETION_VALUES["messageType"] if arg_value.lower() in v.lower()]
+        return types.Completion(values=values, total=None, hasMore=None)
+
+    # Suggest webhook type values
+    if arg_name == "webhookType":
+        values = [v for v in COMPLETION_VALUES["webhookType"] if arg_value.lower() in v.lower()]
+        return types.Completion(values=values, total=None, hasMore=None)
+
+    # Suggest webhook type values (from toggle_webhook tool)
+    if arg_name == "type" and "webhook" in str(arg_value):
+        values = [v for v in COMPLETION_VALUES["webhookType"] if arg_value.lower() in v.lower()]
+        return types.Completion(values=values, total=None, hasMore=None)
+
+    # Suggest integration type values
+    if arg_name == "integrationType":
+        values = [v for v in COMPLETION_VALUES["integrationType"] if arg_value.lower() in v.lower()]
+        return types.Completion(values=values, total=None, hasMore=None)
+
+    # Suggest content type values
+    if arg_name in ("contentType", "content_type"):
+        values = [v for v in COMPLETION_VALUES["contentType"] if arg_value.lower() in v.lower()]
         return types.Completion(values=values, total=None, hasMore=None)
 
     return None
