@@ -4,11 +4,14 @@ TOOLS: dict[str, dict[str, Any]] = {
     "query_agent": {
         "method": "POST",
         "path": "/agents/{id}/query",
-        "description": "Send a query to a specific agent and receive a response.",
+        "description": "Send a query to a specific agent and receive a response. The ID can be the agent's UUID or its handle (prefixed with '@', e.g., '@my-agent').",
         "input_schema": {
             "type": "object",
             "properties": {
-                "id": {"type": "string", "description": "ID of the agent to query"},
+                "id": {
+                    "type": "string",
+                    "description": "ID or handle of the agent to query (use '@' prefix for handles)",
+                },
                 "query": {"type": "string", "description": "The question or command"},
                 "streaming": {"type": "boolean", "default": False},
                 "conversationId": {"type": "string"},
@@ -46,11 +49,25 @@ TOOLS: dict[str, dict[str, Any]] = {
     "get_agent": {
         "method": "GET",
         "path": "/agents/{id}",
-        "description": "Retrieve details of a specific agent.",
+        "description": "Retrieve details of a specific agent. The ID can be the agent's UUID or its handle (prefixed with '@', e.g., '@my-agent').",
         "input_schema": {
             "type": "object",
-            "properties": {"id": {"type": "string", "description": "ID of the agent"}},
+            "properties": {
+                "id": {"type": "string", "description": "ID or handle of the agent (use '@' prefix for handles)"}
+            },
             "required": ["id"],
+        },
+    },
+    "list_agents": {
+        "method": "GET",
+        "path": "/agents",
+        "description": "List all agents in the organization with pagination support.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "limit": {"type": "integer", "description": "Maximum number of agents to return (default 50)"},
+                "offset": {"type": "integer", "description": "Number of agents to skip for pagination"},
+            },
         },
     },
     "create_agent": {
@@ -123,11 +140,14 @@ TOOLS: dict[str, dict[str, Any]] = {
     "update_agent": {
         "method": "PATCH",
         "path": "/agents/{id}",
-        "description": "Update an existing agent's configuration including name, description, model, temperature, system prompt, visibility, handle, interface settings, and inactive hours.",
+        "description": "Update an existing agent's configuration including name, description, model, temperature, system prompt, visibility, handle, interface settings, and inactive hours. The ID can be the agent's UUID or its handle.",
         "input_schema": {
             "type": "object",
             "properties": {
-                "id": {"type": "string", "description": "ID of the agent to update"},
+                "id": {
+                    "type": "string",
+                    "description": "ID or handle of the agent to update (use '@' prefix for handles)",
+                },
                 "name": {"type": "string", "description": "Agent name."},
                 "description": {"type": "string", "description": "Agent description."},
                 "modelName": {"type": "string", "description": "LLM model to be used by the agent."},
@@ -172,11 +192,14 @@ TOOLS: dict[str, dict[str, Any]] = {
     "delete_agent": {
         "method": "DELETE",
         "path": "/agents/{id}",
-        "description": "Delete an AI agent. This action is irreversible.",
+        "description": "Delete an AI agent. This action is irreversible. The ID can be the agent's UUID or its handle.",
         "input_schema": {
             "type": "object",
             "properties": {
-                "id": {"type": "string", "description": "ID of the agent to delete"},
+                "id": {
+                    "type": "string",
+                    "description": "ID or handle of the agent to delete (use '@' prefix for handles)",
+                },
             },
             "required": ["id"],
         },
@@ -190,11 +213,11 @@ TOOLS: dict[str, dict[str, Any]] = {
     "toggle_webhook": {
         "method": "PATCH",
         "path": "/agents/{id}/webhook",
-        "description": "Enable or disable a specific webhook for an agent.",
+        "description": "Enable or disable a specific webhook for an agent. The ID can be the agent's UUID or its handle.",
         "input_schema": {
             "type": "object",
             "properties": {
-                "id": {"type": "string", "description": "Agent ID"},
+                "id": {"type": "string", "description": "ID or handle of the agent (use '@' prefix for handles)"},
                 "type": {"type": "string", "enum": ["whatsapp", "telegram", "zapi", "instagram"]},
                 "enabled": {"type": "boolean"},
             },

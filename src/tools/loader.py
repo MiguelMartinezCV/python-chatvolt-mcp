@@ -59,6 +59,13 @@ TOOL_ANNOTATIONS = {
         "idempotentHint": True,
         "openWorldHint": False,
     },
+    "list_agents": {
+        "title": "List Agents",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
     "toggle_webhook": {
         "title": "Toggle Agent Webhook",
         "readOnlyHint": False,
