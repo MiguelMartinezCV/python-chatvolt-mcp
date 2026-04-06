@@ -1,6 +1,6 @@
-from typing import Dict, Any
+from typing import Any
 
-TOOLS: Dict[str, Dict[str, Any]] = {
+TOOLS: dict[str, dict[str, Any]] = {
     "query_agent": {
         "method": "POST",
         "path": "/agents/{id}/query",
@@ -20,8 +20,8 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                         "lastName": {"type": "string"},
                         "email": {"type": "string"},
                         "phoneNumber": {"type": "string"},
-                        "userId": {"type": "string"}
-                    }
+                        "userId": {"type": "string"},
+                    },
                 },
                 "visitorId": {"type": "string"},
                 "temperature": {"type": "number"},
@@ -33,15 +33,15 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                     "type": "object",
                     "properties": {
                         "custom_ids": {"type": "array", "items": {"type": "string"}},
-                        "datasource_ids": {"type": "array", "items": {"type": "string"}}
-                    }
+                        "datasource_ids": {"type": "array", "items": {"type": "string"}},
+                    },
                 },
                 "systemPrompt": {"type": "string"},
                 "context": {"type": "object"},
-                "callbackURL": {"type": "string"}
+                "callbackURL": {"type": "string"},
             },
-            "required": ["id", "query"]
-        }
+            "required": ["id", "query"],
+        },
     },
     "get_agent": {
         "method": "GET",
@@ -49,11 +49,9 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "description": "Retrieve details of a specific agent.",
         "input_schema": {
             "type": "object",
-            "properties": {
-                "id": {"type": "string", "description": "ID of the agent"}
-            },
-            "required": ["id"]
-        }
+            "properties": {"id": {"type": "string", "description": "ID of the agent"}},
+            "required": ["id"],
+        },
     },
     "create_agent": {
         "method": "POST",
@@ -66,10 +64,10 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                 "description": {"type": "string"},
                 "modelName": {"type": "string"},
                 "temperature": {"type": "number"},
-                "systemPrompt": {"type": "string"}
+                "systemPrompt": {"type": "string"},
             },
-            "required": ["name"]
-        }
+            "required": ["name"],
+        },
     },
     "update_agent": {
         "method": "PATCH",
@@ -83,19 +81,16 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                 "description": {"type": "string"},
                 "modelName": {"type": "string"},
                 "temperature": {"type": "number"},
-                "systemPrompt": {"type": "string"}
+                "systemPrompt": {"type": "string"},
             },
-            "required": ["id"]
-        }
+            "required": ["id"],
+        },
     },
     "get_models": {
         "method": "GET",
         "path": "/agents/models",
         "description": "Get available AI models and their pricing.",
-        "input_schema": {
-            "type": "object",
-            "properties": {}
-        }
+        "input_schema": {"type": "object", "properties": {}},
     },
     "toggle_webhook": {
         "method": "PATCH",
@@ -106,10 +101,10 @@ TOOLS: Dict[str, Dict[str, Any]] = {
             "properties": {
                 "id": {"type": "string", "description": "Agent ID"},
                 "type": {"type": "string", "enum": ["whatsapp", "telegram", "zapi", "instagram"]},
-                "enabled": {"type": "boolean"}
+                "enabled": {"type": "boolean"},
             },
-            "required": ["id", "type", "enabled"]
-        }
+            "required": ["id", "type", "enabled"],
+        },
     },
     "get_agent_tools": {
         "method": "GET",
@@ -117,11 +112,9 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "description": "Get all tools associated with a specific agent.",
         "input_schema": {
             "type": "object",
-            "properties": {
-                "agentId": {"type": "string", "description": "ID of the agent"}
-            },
-            "required": ["agentId"]
-        }
+            "properties": {"agentId": {"type": "string", "description": "ID of the agent"}},
+            "required": ["agentId"],
+        },
     },
     "create_agent_tool": {
         "method": "POST",
@@ -133,8 +126,15 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                 "agentId": {"type": "string", "description": "ID of the agent"},
                 "type": {
                     "type": "string",
-                    "enum": ["http", "datastore", "mark_as_resolved", "request_human", "delayed_responses", "follow_up_messages"],
-                    "description": "The type of tool to create."
+                    "enum": [
+                        "http",
+                        "datastore",
+                        "mark_as_resolved",
+                        "request_human",
+                        "delayed_responses",
+                        "follow_up_messages",
+                    ],
+                    "description": "The type of tool to create.",
                 },
                 "datastoreId": {"type": "string", "description": "Required if type is 'datastore'"},
                 "formId": {"type": "string", "description": "Required if type is 'form'"},
@@ -157,9 +157,9 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                                     "value": {"type": "string"},
                                     "isUserProvided": {"type": "boolean"},
                                     "description": {"type": "string"},
-                                    "acceptedValues": {"type": "array", "items": {"type": "string"}}
-                                }
-                            }
+                                    "acceptedValues": {"type": "array", "items": {"type": "string"}},
+                                },
+                            },
                         },
                         "queryParameters": {
                             "type": "array",
@@ -170,9 +170,9 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                                     "value": {"type": "string"},
                                     "isUserProvided": {"type": "boolean"},
                                     "description": {"type": "string"},
-                                    "acceptedValues": {"type": "array", "items": {"type": "string"}}
-                                }
-                            }
+                                    "acceptedValues": {"type": "array", "items": {"type": "string"}},
+                                },
+                            },
                         },
                         "pathVariables": {
                             "type": "array",
@@ -183,9 +183,9 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                                     "value": {"type": "string"},
                                     "isUserProvided": {"type": "boolean"},
                                     "description": {"type": "string"},
-                                    "acceptedValues": {"type": "array", "items": {"type": "string"}}
-                                }
-                            }
+                                    "acceptedValues": {"type": "array", "items": {"type": "string"}},
+                                },
+                            },
                         },
                         "body": {
                             "type": "array",
@@ -196,9 +196,9 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                                     "value": {"type": "string"},
                                     "isUserProvided": {"type": "boolean"},
                                     "description": {"type": "string"},
-                                    "acceptedValues": {"type": "array", "items": {"type": "string"}}
-                                }
-                            }
+                                    "acceptedValues": {"type": "array", "items": {"type": "string"}},
+                                },
+                            },
                         },
                         "rawBody": {"type": "string", "description": "Raw JSON string for the request body"},
                         "hasMaximumToolCalls": {"type": "boolean"},
@@ -207,12 +207,12 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                         "delay": {"type": "integer", "description": "Seconds for delayed_responses"},
                         "max_sends": {"type": "integer", "description": "Used in follow_up_messages"},
                         "interval_hours": {"type": "integer", "description": "Used in follow_up_messages"},
-                        "messages": {"type": "string", "description": "Used in follow_up_messages, separated by ||"}
-                    }
-                }
+                        "messages": {"type": "string", "description": "Used in follow_up_messages, separated by ||"},
+                    },
+                },
             },
-            "required": ["agentId", "type"]
-        }
+            "required": ["agentId", "type"],
+        },
     },
     "update_agent_tool": {
         "method": "PATCH",
@@ -225,8 +225,15 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                 "toolId": {"type": "string", "description": "ID of the tool to update"},
                 "type": {
                     "type": "string",
-                    "enum": ["http", "datastore", "mark_as_resolved", "request_human", "delayed_responses", "follow_up_messages"],
-                    "description": "The type of tool."
+                    "enum": [
+                        "http",
+                        "datastore",
+                        "mark_as_resolved",
+                        "request_human",
+                        "delayed_responses",
+                        "follow_up_messages",
+                    ],
+                    "description": "The type of tool.",
                 },
                 "datastoreId": {"type": "string", "description": "Required if type is 'datastore'"},
                 "formId": {"type": "string", "description": "Required if type is 'form'"},
@@ -249,9 +256,9 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                                     "value": {"type": "string"},
                                     "isUserProvided": {"type": "boolean"},
                                     "description": {"type": "string"},
-                                    "acceptedValues": {"type": "array", "items": {"type": "string"}}
-                                }
-                            }
+                                    "acceptedValues": {"type": "array", "items": {"type": "string"}},
+                                },
+                            },
                         },
                         "queryParameters": {
                             "type": "array",
@@ -262,9 +269,9 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                                     "value": {"type": "string"},
                                     "isUserProvided": {"type": "boolean"},
                                     "description": {"type": "string"},
-                                    "acceptedValues": {"type": "array", "items": {"type": "string"}}
-                                }
-                            }
+                                    "acceptedValues": {"type": "array", "items": {"type": "string"}},
+                                },
+                            },
                         },
                         "pathVariables": {
                             "type": "array",
@@ -275,9 +282,9 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                                     "value": {"type": "string"},
                                     "isUserProvided": {"type": "boolean"},
                                     "description": {"type": "string"},
-                                    "acceptedValues": {"type": "array", "items": {"type": "string"}}
-                                }
-                            }
+                                    "acceptedValues": {"type": "array", "items": {"type": "string"}},
+                                },
+                            },
                         },
                         "body": {
                             "type": "array",
@@ -288,9 +295,9 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                                     "value": {"type": "string"},
                                     "isUserProvided": {"type": "boolean"},
                                     "description": {"type": "string"},
-                                    "acceptedValues": {"type": "array", "items": {"type": "string"}}
-                                }
-                            }
+                                    "acceptedValues": {"type": "array", "items": {"type": "string"}},
+                                },
+                            },
                         },
                         "rawBody": {"type": "string"},
                         "hasMaximumToolCalls": {"type": "boolean"},
@@ -299,12 +306,12 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                         "delay": {"type": "integer"},
                         "max_sends": {"type": "integer"},
                         "interval_hours": {"type": "integer"},
-                        "messages": {"type": "string"}
-                    }
-                }
+                        "messages": {"type": "string"},
+                    },
+                },
             },
-            "required": ["agentId", "toolId", "type"]
-        }
+            "required": ["agentId", "toolId", "type"],
+        },
     },
     "delete_agent_tool": {
         "method": "DELETE",
@@ -314,9 +321,9 @@ TOOLS: Dict[str, Dict[str, Any]] = {
             "type": "object",
             "properties": {
                 "agentId": {"type": "string", "description": "ID of the agent"},
-                "toolId": {"type": "string", "description": "ID of the tool to delete"}
+                "toolId": {"type": "string", "description": "ID of the tool to delete"},
             },
-            "required": ["agentId", "toolId"]
-        }
-    }
+            "required": ["agentId", "toolId"],
+        },
+    },
 }

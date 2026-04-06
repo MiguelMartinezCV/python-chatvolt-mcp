@@ -1,25 +1,25 @@
 import contextlib
 from collections.abc import AsyncIterator
 
-from mcp.server import Server
 import mcp.types as types
-from src.tools.loader import registry
-from src.prompts.workflows import PROMPTS, get_prompt_message
+from mcp.server import Server
 from mcp.server.streamable_http_manager import StreamableHTTPSessionManager
-
 from starlette.applications import Starlette
-from starlette.routing import Route
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
-from starlette.requests import Request
-from starlette.responses import Response
+from starlette.routing import Route
+
+from src.prompts.workflows import PROMPTS, get_prompt_message
+from src.tools.loader import registry
 
 app = Server("chatvolt-mcp")
+
 
 @app.list_tools()
 async def handle_list_tools() -> list[types.Tool]:
     """List available tools."""
     return registry.get_tool_list()
+
 
 @app.call_tool()
 async def handle_call_tool(
@@ -28,15 +28,15 @@ async def handle_call_tool(
     """Handle tool execution requests."""
     return await registry.call_tool(name, arguments or {})
 
+
 @app.list_prompts()
 async def handle_list_prompts() -> list[types.Prompt]:
     """List available prompts."""
     return list(PROMPTS.values())
 
+
 @app.get_prompt()
-async def handle_get_prompt(
-    name: str, arguments: dict[str, str] | None
-) -> types.GetPromptResult:
+async def handle_get_prompt(name: str, arguments: dict[str, str] | None) -> types.GetPromptResult:
     """Get a specific prompt."""
     return get_prompt_message(name, arguments or {})
 
@@ -63,16 +63,13 @@ class MCPApp:
     Raw ASGI app for the /sse endpoint.
     Injects Accept header before delegating to StreamableHTTPSessionManager.
     """
+
     async def __call__(self, scope, receive, send):
         if scope["type"] == "http":
             headers = list(scope.get("headers", []))
             accept_values = [v for k, v in headers if k.lower() == b"accept"]
-            needs_inject = (
-                not accept_values
-                or (
-                    b"application/json" not in accept_values[0]
-                    and b"text/event-stream" not in accept_values[0]
-                )
+            needs_inject = not accept_values or (
+                b"application/json" not in accept_values[0] and b"text/event-stream" not in accept_values[0]
             )
             if needs_inject:
                 headers = [(k, v) for k, v in headers if k.lower() != b"accept"]
@@ -94,16 +91,16 @@ starlette_app = Starlette(
         # The MCP SDK's handle_request doesn't care about path.
         Route("/sse", endpoint=lambda req: None),  # placeholder for OpenAPI
     ],
-    middleware=[
-        Middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
-    ]
+    middleware=[Middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])],
 )
 
 # Override the ASGI app so all /sse traffic goes to mcp_app directly
 _inner = starlette_app
 
+
 class RootApp:
     """Routes /sse and /sse/ to MCPApp, everything else to Starlette."""
+
     async def __call__(self, scope, receive, send):
         if scope["type"] == "http":
             path = scope.get("path", "").rstrip("/")
@@ -115,5 +112,5 @@ class RootApp:
             return
         await _inner(scope, receive, send)
 
-starlette_app = RootApp()
 
+starlette_app = RootApp()

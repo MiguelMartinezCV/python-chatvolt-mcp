@@ -1,6 +1,6 @@
-from typing import Dict, Any
+from typing import Any
 
-TOOLS: Dict[str, Dict[str, Any]] = {
+TOOLS: dict[str, dict[str, Any]] = {
     "list_datastores": {
         "method": "GET",
         "path": "/datastores/list",
@@ -9,9 +9,9 @@ TOOLS: Dict[str, Dict[str, Any]] = {
             "type": "object",
             "properties": {
                 "offset": {"type": "integer", "default": 0, "description": "Number of items to skip"},
-                "limit": {"type": "integer", "default": 20, "description": "Maximum number of items to return"}
-            }
-        }
+                "limit": {"type": "integer", "default": 20, "description": "Maximum number of items to return"},
+            },
+        },
     },
     "query_datastore": {
         "method": "POST",
@@ -27,12 +27,12 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                     "type": "object",
                     "properties": {
                         "custom_ids": {"type": "array", "items": {"type": "string"}},
-                        "datasource_ids": {"type": "array", "items": {"type": "string"}}
-                    }
-                }
+                        "datasource_ids": {"type": "array", "items": {"type": "string"}},
+                    },
+                },
             },
-            "required": ["id", "query"]
-        }
+            "required": ["id", "query"],
+        },
     },
     "get_datastore": {
         "method": "GET",
@@ -43,14 +43,22 @@ TOOLS: Dict[str, Dict[str, Any]] = {
             "properties": {
                 "id": {"type": "string", "description": "ID of the datastore"},
                 "search": {"type": "string", "description": "Search datasources by name (optional)"},
-                "status": {"type": "string", "enum": ["unsynched", "pending", "running", "synched", "error", "usage_limit_reached"], "description": "Filter datasources by status (optional)"},
-                "type": {"type": "string", "enum": ["file", "web_page", "web_site", "qa"], "description": "Filter datasources by type (optional)"},
+                "status": {
+                    "type": "string",
+                    "enum": ["unsynched", "pending", "running", "synched", "error", "usage_limit_reached"],
+                    "description": "Filter datasources by status (optional)",
+                },
+                "type": {
+                    "type": "string",
+                    "enum": ["file", "web_page", "web_site", "qa"],
+                    "description": "Filter datasources by type (optional)",
+                },
                 "offset": {"type": "integer", "default": 0, "description": "Datasource pagination offset (optional)"},
                 "limit": {"type": "integer", "default": 100, "description": "Datasource pagination limit (optional)"},
-                "groupId": {"type": "string", "description": "Filter datasources by group ID (optional)"}
+                "groupId": {"type": "string", "description": "Filter datasources by group ID (optional)"},
             },
-            "required": ["id"]
-        }
+            "required": ["id"],
+        },
     },
     "create_datastore": {
         "method": "POST",
@@ -64,10 +72,13 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                 "type": {"type": "string", "enum": ["qdrant"], "description": "Datastore type (e.g., 'qdrant')"},
                 "isPublic": {"type": "boolean", "default": False, "description": "Whether the datastore is public"},
                 "pluginName": {"type": "string", "description": "Short name for the OpenAI plugin (max 20 chars)"},
-                "pluginDescriptionForHumans": {"type": "string", "description": "Description for the OpenAI plugin (max 90 chars)"}
+                "pluginDescriptionForHumans": {
+                    "type": "string",
+                    "description": "Description for the OpenAI plugin (max 90 chars)",
+                },
             },
-            "required": ["type"]
-        }
+            "required": ["type"],
+        },
     },
     "update_datastore": {
         "method": "PATCH",
@@ -82,10 +93,13 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                 "type": {"type": "string", "enum": ["qdrant"]},
                 "isPublic": {"type": "boolean"},
                 "pluginName": {"type": "string", "description": "Short name for the OpenAI plugin (max 20 chars)"},
-                "pluginDescriptionForHumans": {"type": "string", "description": "Description for the OpenAI plugin (max 90 chars)"}
+                "pluginDescriptionForHumans": {
+                    "type": "string",
+                    "description": "Description for the OpenAI plugin (max 90 chars)",
+                },
             },
-            "required": ["id"]
-        }
+            "required": ["id"],
+        },
     },
     "delete_datastore": {
         "method": "DELETE",
@@ -93,11 +107,9 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "description": "Permanently delete a datastore and all its associated data.",
         "input_schema": {
             "type": "object",
-            "properties": {
-                "id": {"type": "string", "description": "ID of the datastore to delete"}
-            },
-            "required": ["id"]
-        }
+            "properties": {"id": {"type": "string", "description": "ID of the datastore to delete"}},
+            "required": ["id"],
+        },
     },
     "list_datasources": {
         "method": "GET",
@@ -108,10 +120,10 @@ TOOLS: Dict[str, Dict[str, Any]] = {
             "properties": {
                 "datastoreId": {"type": "string", "description": "ID of the datastore to list datasources from"},
                 "offset": {"type": "integer", "default": 0, "description": "Number of items to skip"},
-                "limit": {"type": "integer", "default": 20, "description": "Maximum number of items to return"}
+                "limit": {"type": "integer", "default": 20, "description": "Maximum number of items to return"},
             },
-            "required": ["datastoreId"]
-        }
+            "required": ["datastoreId"],
+        },
     },
     "get_datasource": {
         "method": "GET",
@@ -121,10 +133,10 @@ TOOLS: Dict[str, Dict[str, Any]] = {
             "type": "object",
             "properties": {
                 "id": {"type": "string", "description": "ID of the datasource to retrieve"},
-                "idstore": {"type": "string", "description": "ID of the datastore to which the datasource belongs"}
+                "idstore": {"type": "string", "description": "ID of the datastore to which the datasource belongs"},
             },
-            "required": ["id", "idstore"]
-        }
+            "required": ["id", "idstore"],
+        },
     },
     "create_datasource": {
         "method": "POST",
@@ -134,11 +146,21 @@ TOOLS: Dict[str, Dict[str, Any]] = {
             "type": "object",
             "properties": {
                 "datastoreId": {"type": "string", "description": "ID of the datastore"},
-                "type": {"type": "string", "enum": ["file", "web_page", "web_site", "qa"], "description": "The type of datasource"},
+                "type": {
+                    "type": "string",
+                    "enum": ["file", "web_page", "web_site", "qa"],
+                    "description": "The type of datasource",
+                },
                 "name": {"type": "string", "description": "Name for the datasource (optional for files)"},
-                "file_path": {"type": "string", "description": "Absolute path to a local file (required if type is 'file')"},
+                "file_path": {
+                    "type": "string",
+                    "description": "Absolute path to a local file (required if type is 'file')",
+                },
                 "fileName": {"type": "string", "description": "Optional name for the uploaded file"},
-                "datasourceText": {"type": "string", "description": "Textual content (for 'file' or 'qa' if isUpdateText is true)"},
+                "datasourceText": {
+                    "type": "string",
+                    "description": "Textual content (for 'file' or 'qa' if isUpdateText is true)",
+                },
                 "isUpdateText": {"type": "boolean"},
                 "custom_id": {"type": "string", "description": "Optional custom ID"},
                 "config": {
@@ -148,11 +170,11 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                         "sitemap": {"type": "string", "format": "url"},
                         "tags": {"type": "array", "items": {"type": "string"}},
                         "question": {"type": "string"},
-                        "answer": {"type": "string"}
-                    }
-                }
+                        "answer": {"type": "string"},
+                    },
+                },
             },
-            "required": ["datastoreId", "type"]
-        }
-    }
+            "required": ["datastoreId", "type"],
+        },
+    },
 }

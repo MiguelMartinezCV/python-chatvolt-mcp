@@ -1,6 +1,6 @@
-from typing import Dict, Any
+from typing import Any
 
-TOOLS: Dict[str, Dict[str, Any]] = {
+TOOLS: dict[str, dict[str, Any]] = {
     "get_conversation_messages": {
         "method": "GET",
         "path": "/conversation/{conversationId}/messages/{count}",
@@ -9,10 +9,10 @@ TOOLS: Dict[str, Dict[str, Any]] = {
             "type": "object",
             "properties": {
                 "conversationId": {"type": "string", "description": "ID of the conversation"},
-                "count": {"type": "integer", "default": 2, "description": "Number of most recent messages to retrieve"}
+                "count": {"type": "integer", "default": 2, "description": "Number of most recent messages to retrieve"},
             },
-            "required": ["conversationId", "count"]
-        }
+            "required": ["conversationId", "count"],
+        },
     },
     "get_message": {
         "method": "GET",
@@ -22,10 +22,14 @@ TOOLS: Dict[str, Dict[str, Any]] = {
             "type": "object",
             "properties": {
                 "messageId": {"type": "string", "description": "The unique ID of the message"},
-                "includeSources": {"type": "boolean", "default": False, "description": "Include document sources in the response"}
+                "includeSources": {
+                    "type": "boolean",
+                    "default": False,
+                    "description": "Include document sources in the response",
+                },
             },
-            "required": ["messageId"]
-        }
+            "required": ["messageId"],
+        },
     },
     "list_conversations": {
         "method": "GET",
@@ -34,11 +38,18 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "input_schema": {
             "type": "object",
             "properties": {
-                "agentId": {"type": "string", "description": "Filter by agent ID. Pass 'null' for unassigned conversations."},
+                "agentId": {
+                    "type": "string",
+                    "description": "Filter by agent ID. Pass 'null' for unassigned conversations.",
+                },
                 "createdAt": {"type": "string", "description": "Filter by creation date (e.g., 'YYYY-MM-DD HH:mm:ss')"},
-                "status": {"type": "string", "enum": ["RESOLVED", "UNRESOLVED", "HUMAN_REQUESTED"], "description": "Filter by status"}
-            }
-        }
+                "status": {
+                    "type": "string",
+                    "enum": ["RESOLVED", "UNRESOLVED", "HUMAN_REQUESTED"],
+                    "description": "Filter by status",
+                },
+            },
+        },
     },
     "get_conversation": {
         "method": "GET",
@@ -49,8 +60,8 @@ TOOLS: Dict[str, Dict[str, Any]] = {
             "properties": {
                 "conversationId": {"type": "string", "description": "ID of the conversation to be retrieved"}
             },
-            "required": ["conversationId"]
-        }
+            "required": ["conversationId"],
+        },
     },
     "set_conversation_ai": {
         "method": "POST",
@@ -60,10 +71,10 @@ TOOLS: Dict[str, Dict[str, Any]] = {
             "type": "object",
             "properties": {
                 "conversationId": {"type": "string", "description": "ID of the conversation"},
-                "enabled": {"type": "boolean", "description": "True to enable AI, false to disable"}
+                "enabled": {"type": "boolean", "description": "True to enable AI, false to disable"},
             },
-            "required": ["conversationId", "enabled"]
-        }
+            "required": ["conversationId", "enabled"],
+        },
     },
     "register_message_in_context": {
         "method": "POST",
@@ -74,9 +85,14 @@ TOOLS: Dict[str, Dict[str, Any]] = {
             "properties": {
                 "conversationId": {"type": "string", "description": "ID of the conversation"},
                 "message": {"type": "string", "description": "The text of the message to register"},
-                "from": {"type": "string", "enum": ["human", "agent"], "default": "human", "description": "Who the message is from"}
+                "from": {
+                    "type": "string",
+                    "enum": ["human", "agent"],
+                    "default": "human",
+                    "description": "Who the message is from",
+                },
             },
-            "required": ["conversationId", "message"]
-        }
-    }
+            "required": ["conversationId", "message"],
+        },
+    },
 }

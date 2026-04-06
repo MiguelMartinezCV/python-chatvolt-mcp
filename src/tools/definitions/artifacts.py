@@ -1,6 +1,6 @@
-from typing import Dict, Any
+from typing import Any
 
-TOOLS: Dict[str, Dict[str, Any]] = {
+TOOLS: dict[str, dict[str, Any]] = {
     "search_artifacts": {
         "method": "GET",
         "path": "/artifacts/search",
@@ -9,21 +9,29 @@ TOOLS: Dict[str, Dict[str, Any]] = {
             "type": "object",
             "properties": {
                 "q": {"type": "string", "description": "Search term for name, description, or category name"},
-                "ids": {"type": "array", "items": {"type": "string"}, "description": "List of specific Artifact IDs. Overrides 'q' if provided."},
+                "ids": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "List of specific Artifact IDs. Overrides 'q' if provided.",
+                },
                 "minPrice": {"type": "number", "description": "Minimum price filter"},
                 "maxPrice": {"type": "number", "description": "Maximum price filter"},
-                "categoryIds": {"type": "array", "items": {"type": "string"}, "description": "List of category IDs (includes sub-categories)"},
+                "categoryIds": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "List of category IDs (includes sub-categories)",
+                },
                 "mediaTypes": {
                     "type": "array",
                     "items": {"type": "string", "enum": ["IMAGE", "VIDEO", "AUDIO", "DOCUMENT", "OTHER"]},
-                    "description": "Filter by media types"
+                    "description": "Filter by media types",
                 },
                 "maxMedias": {"type": "integer", "default": 10},
                 "includeInactive": {"type": "boolean", "default": False},
                 "limit": {"type": "integer", "default": 20},
-                "page": {"type": "integer", "default": 1}
-            }
-        }
+                "page": {"type": "integer", "default": 1},
+            },
+        },
     },
     "list_artifacts": {
         "method": "GET",
@@ -34,9 +42,9 @@ TOOLS: Dict[str, Dict[str, Any]] = {
             "properties": {
                 "categoryId": {"type": "string", "description": "Filter by category ID"},
                 "name": {"type": "string", "description": "Filter by exact name match"},
-                "search": {"type": "string", "description": "General search string (name, description, id)"}
-            }
-        }
+                "search": {"type": "string", "description": "General search string (name, description, id)"},
+            },
+        },
     },
     "create_artifact": {
         "method": "POST",
@@ -51,10 +59,10 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                 "externalUrl": {"type": "string"},
                 "customJson": {"type": "object"},
                 "categoryId": {"type": "string"},
-                "isActive": {"type": "boolean"}
+                "isActive": {"type": "boolean"},
             },
-            "required": ["name", "categoryId"]
-        }
+            "required": ["name", "categoryId"],
+        },
     },
     "get_artifact": {
         "method": "GET",
@@ -62,11 +70,9 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "description": "Retrieve details of a specific artifact by its id.",
         "input_schema": {
             "type": "object",
-            "properties": {
-                "id": {"type": "string", "description": "ID of the artifact"}
-            },
-            "required": ["id"]
-        }
+            "properties": {"id": {"type": "string", "description": "ID of the artifact"}},
+            "required": ["id"],
+        },
     },
     "update_artifact": {
         "method": "PUT",
@@ -82,10 +88,10 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                 "externalUrl": {"type": "string"},
                 "customJson": {"type": "object"},
                 "categoryId": {"type": "string"},
-                "isActive": {"type": "boolean"}
+                "isActive": {"type": "boolean"},
             },
-            "required": ["id"]
-        }
+            "required": ["id"],
+        },
     },
     "list_artifact_media": {
         "method": "GET",
@@ -96,10 +102,14 @@ TOOLS: Dict[str, Dict[str, Any]] = {
             "properties": {
                 "artifact_id": {"type": "string", "description": "ID of the artifact to list media for"},
                 "q": {"type": "string", "description": "Search by name or alt description"},
-                "type": {"type": "string", "enum": ["IMAGE", "VIDEO", "AUDIO", "DOCUMENT", "OTHER", "all"], "description": "Filter by media type"}
+                "type": {
+                    "type": "string",
+                    "enum": ["IMAGE", "VIDEO", "AUDIO", "DOCUMENT", "OTHER", "all"],
+                    "description": "Filter by media type",
+                },
             },
-            "required": ["artifact_id"]
-        }
+            "required": ["artifact_id"],
+        },
     },
     "upload_artifact_media": {
         "method": "POST",
@@ -111,10 +121,10 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                 "artifact_id": {"type": "string", "description": "ID of the artifact"},
                 "name": {"type": "string", "description": "Name for the media file"},
                 "alt_description": {"type": "string", "description": "Alt text/description for accessibility"},
-                "file_path": {"type": "string", "description": "Absolute path to the local file to upload"}
+                "file_path": {"type": "string", "description": "Absolute path to the local file to upload"},
             },
-            "required": ["artifact_id", "name", "file_path"]
-        }
+            "required": ["artifact_id", "name", "file_path"],
+        },
     },
     "update_artifact_media": {
         "method": "PATCH",
@@ -126,10 +136,10 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                 "id": {"type": "string", "description": "ID of the media item"},
                 "name": {"type": "string"},
                 "altDescription": {"type": "string"},
-                "isActive": {"type": "boolean"}
+                "isActive": {"type": "boolean"},
             },
-            "required": ["id"]
-        }
+            "required": ["id"],
+        },
     },
     "delete_artifact_media": {
         "method": "DELETE",
@@ -137,20 +147,15 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "description": "Delete a specific media item from an artifact.",
         "input_schema": {
             "type": "object",
-            "properties": {
-                "id": {"type": "string", "description": "ID of the media item to delete"}
-            },
-            "required": ["id"]
-        }
+            "properties": {"id": {"type": "string", "description": "ID of the media item to delete"}},
+            "required": ["id"],
+        },
     },
     "list_artifact_categories": {
         "method": "GET",
         "path": "/artifact-categories",
         "description": "List all artifact categories.",
-        "input_schema": {
-            "type": "object",
-            "properties": {}
-        }
+        "input_schema": {"type": "object", "properties": {}},
     },
     "create_artifact_category": {
         "method": "POST",
@@ -161,10 +166,10 @@ TOOLS: Dict[str, Dict[str, Any]] = {
             "properties": {
                 "name": {"type": "string", "description": "Name of the category"},
                 "description": {"type": "string", "description": "Description of the category"},
-                "parentId": {"type": "string", "description": "Optional parent category ID"}
+                "parentId": {"type": "string", "description": "Optional parent category ID"},
             },
-            "required": ["name"]
-        }
+            "required": ["name"],
+        },
     },
     "get_artifact_category": {
         "method": "GET",
@@ -172,11 +177,9 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "description": "Retrieve details of a specific artifact category.",
         "input_schema": {
             "type": "object",
-            "properties": {
-                "id": {"type": "string", "description": "ID of the category"}
-            },
-            "required": ["id"]
-        }
+            "properties": {"id": {"type": "string", "description": "ID of the category"}},
+            "required": ["id"],
+        },
     },
     "update_artifact_category": {
         "method": "PUT",
@@ -189,10 +192,10 @@ TOOLS: Dict[str, Dict[str, Any]] = {
                 "name": {"type": "string"},
                 "description": {"type": "string"},
                 "parentId": {"type": "string"},
-                "isActive": {"type": "boolean"}
+                "isActive": {"type": "boolean"},
             },
-            "required": ["id"]
-        }
+            "required": ["id"],
+        },
     },
     "delete_artifact_category": {
         "method": "DELETE",
@@ -200,10 +203,8 @@ TOOLS: Dict[str, Dict[str, Any]] = {
         "description": "Delete a specific artifact category.",
         "input_schema": {
             "type": "object",
-            "properties": {
-                "id": {"type": "string", "description": "ID of the category to delete"}
-            },
-            "required": ["id"]
-        }
-    }
+            "properties": {"id": {"type": "string", "description": "ID of the category to delete"}},
+            "required": ["id"],
+        },
+    },
 }

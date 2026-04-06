@@ -1,5 +1,7 @@
 import pytest
-from src.server import handle_list_tools, handle_call_tool, handle_list_prompts
+
+from src.server import handle_list_prompts, handle_list_tools
+
 
 @pytest.mark.asyncio
 async def test_server_tools_list():
@@ -9,6 +11,7 @@ async def test_server_tools_list():
     names = [t.name for t in tools]
     assert "query_agent" in names
 
+
 @pytest.mark.asyncio
 async def test_server_prompts_list():
     prompts = await handle_list_prompts()
@@ -16,4 +19,3 @@ async def test_server_prompts_list():
     assert len(prompts) > 0
     names = [p.name for p in prompts]
     assert "create_new_agent" in names
-
