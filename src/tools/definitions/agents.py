@@ -56,15 +56,66 @@ TOOLS: dict[str, dict[str, Any]] = {
     "create_agent": {
         "method": "POST",
         "path": "/agents",
-        "description": "Create a new AI agent.",
+        "description": "Create a new AI agent with customizable settings including visibility, handle, interface configuration, and external URL integrations.",
         "input_schema": {
             "type": "object",
             "properties": {
-                "name": {"type": "string"},
-                "description": {"type": "string"},
-                "modelName": {"type": "string"},
-                "temperature": {"type": "number"},
-                "systemPrompt": {"type": "string"},
+                "name": {
+                    "type": "string",
+                    "description": "Agent name. If not provided, a fun name will be generated automatically.",
+                },
+                "description": {"type": "string", "description": "Agent description."},
+                "modelName": {
+                    "type": "string",
+                    "description": "LLM model to be used by the agent. Check the API for available model names.",
+                },
+                "temperature": {
+                    "type": "number",
+                    "description": "Model temperature (min 0.0, max 1.0). Controls randomness.",
+                },
+                "systemPrompt": {"type": "string", "description": "System prompt to guide the agent's behavior."},
+                "visibility": {
+                    "type": "string",
+                    "enum": ["public", "private"],
+                    "description": "Agent visibility. 'public' allows access without authentication, 'private' restricts access to the organization.",
+                },
+                "handle": {
+                    "type": "string",
+                    "description": "A unique identifier (slug) for the agent. Used for friendly URLs.",
+                },
+                "interfaceConfig": {
+                    "type": "object",
+                    "description": "Chat interface settings (colors, initial messages, etc.).",
+                },
+                "configUrlExternal": {
+                    "type": "object",
+                    "description": "External URL configurations.",
+                    "properties": {
+                        "url": {"type": "string"},
+                        "header": {"type": "string"},
+                    },
+                },
+                "configUrlInfosSystemExternal": {
+                    "type": "object",
+                    "description": "External URL configurations of the system.",
+                    "properties": {
+                        "url_webhook_external": {"type": "string"},
+                        "headerKey": {"type": "string"},
+                    },
+                },
+                "enableInactiveHours": {
+                    "type": "boolean",
+                    "description": "Enable or disable inactive hours for the agent.",
+                },
+                "inactiveHours": {
+                    "type": "object",
+                    "description": "JSON object specifying the agent's inactive hours per channel (whatsapp, website, instagram) with days and time ranges.",
+                },
+                "tools": {
+                    "type": "array",
+                    "items": {"type": "object"},
+                    "description": "List of tools to be associated with the agent.",
+                },
             },
             "required": ["name"],
         },
@@ -72,16 +123,48 @@ TOOLS: dict[str, dict[str, Any]] = {
     "update_agent": {
         "method": "PATCH",
         "path": "/agents/{id}",
-        "description": "Update an existing agent's configuration.",
+        "description": "Update an existing agent's configuration including name, description, model, temperature, system prompt, visibility, handle, interface settings, and inactive hours.",
         "input_schema": {
             "type": "object",
             "properties": {
                 "id": {"type": "string", "description": "ID of the agent to update"},
-                "name": {"type": "string"},
-                "description": {"type": "string"},
-                "modelName": {"type": "string"},
-                "temperature": {"type": "number"},
-                "systemPrompt": {"type": "string"},
+                "name": {"type": "string", "description": "Agent name."},
+                "description": {"type": "string", "description": "Agent description."},
+                "modelName": {"type": "string", "description": "LLM model to be used by the agent."},
+                "temperature": {"type": "number", "description": "Model temperature (min 0.0, max 1.0)."},
+                "systemPrompt": {"type": "string", "description": "System prompt to guide the agent's behavior."},
+                "visibility": {"type": "string", "enum": ["public", "private"], "description": "Agent visibility."},
+                "handle": {"type": "string", "description": "A unique identifier (slug) for the agent."},
+                "interfaceConfig": {"type": "object", "description": "Chat interface settings."},
+                "configUrlExternal": {
+                    "type": "object",
+                    "description": "External URL configurations.",
+                    "properties": {
+                        "url": {"type": "string"},
+                        "header": {"type": "string"},
+                    },
+                },
+                "configUrlInfosSystemExternal": {
+                    "type": "object",
+                    "description": "External URL configurations of the system.",
+                    "properties": {
+                        "url_webhook_external": {"type": "string"},
+                        "headerKey": {"type": "string"},
+                    },
+                },
+                "enableInactiveHours": {
+                    "type": "boolean",
+                    "description": "Enable or disable inactive hours for the agent.",
+                },
+                "inactiveHours": {
+                    "type": "object",
+                    "description": "JSON object specifying the agent's inactive hours per channel.",
+                },
+                "tools": {
+                    "type": "array",
+                    "items": {"type": "object"},
+                    "description": "List of tools to be associated with the agent.",
+                },
             },
             "required": ["id"],
         },

@@ -22,6 +22,7 @@ app = Server(
     instructions="MCP server for Chatvolt AI platform. Provides tools for managing agents, conversations, contacts, dispatches, and more.",
 )
 
+
 LOG_LEVELS = {"debug", "info", "notice", "warning", "error", "critical", "alert", "emergency"}
 
 LOG_LEVEL_MAP = {
