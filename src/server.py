@@ -1,4 +1,5 @@
 import contextlib
+import logging
 from collections.abc import AsyncIterator
 
 import mcp.types as types
@@ -13,7 +14,51 @@ from src.prompts.workflows import PROMPTS, get_prompt_message
 from src.tools.definitions import TOOLS_DEFINITION
 from src.tools.loader import registry
 
+logger = logging.getLogger("chatvolt-mcp")
+
 app = Server("chatvolt-mcp")
+
+LOG_LEVELS = {"debug", "info", "notice", "warning", "error", "critical", "alert", "emergency"}
+
+LOG_LEVEL_MAP = {
+    "debug": logging.DEBUG,
+    "info": logging.INFO,
+    "notice": logging.INFO,
+    "warning": logging.WARNING,
+    "error": logging.ERROR,
+    "critical": logging.CRITICAL,
+    "alert": logging.CRITICAL,
+    "emergency": logging.CRITICAL,
+}
+
+
+@app.set_logging_level()
+async def handle_set_logging_level(level: str) -> types.EmptyResult:
+    """Handle logging level setting requests."""
+    if level not in LOG_LEVELS:
+        raise ValueError(f"Invalid log level: {level}. Must be one of: {', '.join(LOG_LEVELS)}")
+    logger.setLevel(LOG_LEVEL_MAP[level])
+    for handler in logger.handlers:
+        handler.setLevel(LOG_LEVEL_MAP[level])
+    return types.EmptyResult()
+
+
+async def send_log(level: str, data: dict | None = None, logger_name: str | None = None) -> None:
+    """Send a log message notification to the client."""
+    try:
+        notification = types.LoggingMessageNotification(level=level, logger=logger_name, data=data)
+        await app.request_context.session.send_notification(notification)
+    except Exception:
+        pass
+
+
+def log_message(level: str, message: str, data: dict | None = None) -> None:
+    """Log a message both to Python logger and via MCP notification."""
+    getattr(logger, level.lower())(message)
+    import asyncio
+
+    with contextlib.suppress(RuntimeError):
+        asyncio.create_task(send_log(level, {"message": message, **(data or {})}))
 
 
 # --- Resources ---
