@@ -836,6 +836,48 @@ TOOL_ANNOTATIONS = {
         "idempotentHint": True,
         "openWorldHint": True,
     },
+    "telegram_list_agents": {
+        "title": "List Telegram Agents",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+    "telegram_connect": {
+        "title": "Connect Telegram",
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+    "telegram_disconnect": {
+        "title": "Disconnect Telegram",
+        "readOnlyHint": False,
+        "destructiveHint": True,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+    "instagram_list_agents": {
+        "title": "List Instagram Agents",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
+    "instagram_connect": {
+        "title": "Connect Instagram",
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": False,
+        "openWorldHint": True,
+    },
+    "instagram_disconnect": {
+        "title": "Disconnect Instagram",
+        "readOnlyHint": False,
+        "destructiveHint": True,
+        "idempotentHint": True,
+        "openWorldHint": True,
+    },
 }
 
 

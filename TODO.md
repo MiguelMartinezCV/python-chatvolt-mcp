@@ -51,7 +51,7 @@ Priority: P0 (Critical) → P1 (High) → P2 (Medium) → P3 (Low)
 - [x] Update README with Ralph Loop usage instructions
 
 ## Stats
-- **117 tools** implemented (agents, conversations, artifacts, datastores, CRM, contacts, dispatches, blacklist, Z-API, datasource management, WhatsApp Official, Interactive Messages, Twilio, Mercado Livre, Zapper, Contact Lists, WhatsApp WhiteList)
+- **123 tools** implemented (agents, conversations, artifacts, datastores, CRM, contacts, dispatches, blacklist, Z-API, datasource management, WhatsApp Official, Interactive Messages, Twilio, Mercado Livre, Zapper, Contact Lists, WhatsApp WhiteList, Telegram, Instagram)
 - **8 workflow prompts** implemented
 - **67 tests** passing (76% coverage)
 - **All tools have annotations** (title, readOnlyHint, destructiveHint, idempotentHint, openWorldHint)

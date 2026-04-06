@@ -12,8 +12,10 @@ from .definitions.crm_scenarios import TOOLS as CRM_SCENARIOS_TOOLS
 from .definitions.datasources import TOOLS as DATASOURCES_TOOLS
 from .definitions.datastores import TOOLS as DATASTORES_TOOLS
 from .definitions.dispatches import TOOLS as DISPATCHES_TOOLS
+from .definitions.instagram import TOOLS as INSTAGRAM_TOOLS
 from .definitions.interactive import TOOLS as INTERACTIVE_TOOLS
 from .definitions.mercadolivre import TOOLS as MERCADOLIVRE_TOOLS
+from .definitions.telegram import TOOLS as TELEGRAM_TOOLS
 from .definitions.twilio import TOOLS as TWILIO_TOOLS
 from .definitions.whatsapp_official import TOOLS as WHATSAPP_OFFICIAL_TOOLS
 from .definitions.whitelist import TOOLS as WHITELIST_TOOLS
@@ -40,4 +42,6 @@ TOOLS_DEFINITION: dict[str, dict[str, Any]] = {
     **TWILIO_TOOLS,
     **MERCADOLIVRE_TOOLS,
     **ZAPPER_TOOLS,
+    **TELEGRAM_TOOLS,
+    **INSTAGRAM_TOOLS,
 }
