@@ -156,6 +156,12 @@ class TestNewTools:
         names = [t.name for t in tools]
         assert "zapper_send_message" in names, "Missing zapper_send_message tool"
 
+    @pytest.mark.asyncio
+    async def test_toggle_webhook_tool_exists(self):
+        tools = await handle_list_tools()
+        names = [t.name for t in tools]
+        assert "toggle_webhook" in names, "Missing toggle_webhook tool"
+
 
 class TestNewToolCalls:
     @pytest.mark.asyncio
@@ -262,3 +268,15 @@ class TestStructuredErrors:
         parsed = json.loads(result[0].text)
         assert parsed["error"] is True
         assert parsed["status"] == 400
+
+    @pytest.mark.asyncio
+    @respx.mock
+    async def test_toggle_webhook(self, registry):
+        route = respx.patch("https://api.chatvolt.ai/agents/agent_123/webhook?type=whatsapp&enabled=true").respond(
+            status_code=200, json={"enabled": True, "type": "whatsapp"}
+        )
+        result = await registry.call_tool("toggle_webhook", {"id": "agent_123", "type": "whatsapp", "enabled": True})
+        assert len(result) == 1
+        parsed = json.loads(result[0].text)
+        assert parsed == {"enabled": True, "type": "whatsapp"}
+        assert route.called
