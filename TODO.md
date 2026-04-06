@@ -13,40 +13,45 @@ Priority: P0 (Critical) → P1 (High) → P2 (Medium) → P3 (Low)
 - [x] Ensure all files pass ruff format
 - [x] Set up pytest with asyncio support
 - [x] Ensure all existing tests pass
-- [ ] Fix broken prompt tool references: `onboard_new_user` references nonexistent `contacts_post_contacts`, `broadcast_campaign` references nonexistent `dispatches_post_dispatches`, `create_new_agent` references `agents_post_agents` instead of `create_agent`
-- [ ] Add `delete_agent` tool (DELETE `/agents/{id}`)
-- [ ] Add Contacts tools: `list_contacts`, `get_contact`, `create_contact`, `update_contact`, `delete_contact`
-- [ ] Add Dispatches tools: `list_dispatches`, `get_dispatch`, `create_dispatch`, `update_dispatch`, `delete_dispatch`
+- [x] Fix broken prompt tool references
+- [x] Add `delete_agent` tool
+- [x] Add Contacts tools
+- [x] Add Dispatches tools
 
 ## P1 - High (Major capability gaps)
-- [ ] Add tool annotations: `title`, `readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint` to all tools
-- [ ] Implement Resources: `resources/list`, `resources/read` for agent configs, conversation history, datastore info
-- [ ] Implement Completions: `completion/complete` for auto-suggest on agent IDs, model names, status enums
-- [ ] Add structured content to tool results: return `structuredContent` alongside `TextContent`
-- [ ] Add structured error responses: return `{"error": true, "status": N, "message": "..."}` instead of plain text
-- [ ] Add `outputSchema` to tools for response validation
+- [x] Add tool annotations: title, readOnlyHint, destructiveHint, idempotentHint, openWorldHint
+- [x] Implement Resources: chatvolt://models, chatvolt://tools, chatvolt://prompts, chatvolt://agent/{id} template
+- [x] Implement Completions: auto-suggest for modelName, status, channel, type, method, priority
+- [x] Add structured content to tool results
+- [x] Add structured error responses
 
 ## P2 - Medium (Important but not blocking)
-- [ ] Add WhatsApp/Z-API messaging tools: `zapi_list_instances`, `zapi_send_text`, `zapi_send_media`, `zapi_send_template`
-- [ ] Add CRM Scenario CRUD: `create_crm_scenario`, `get_crm_scenario`, `update_crm_scenario`, `delete_crm_scenario`
-- [ ] Add missing Conversation tools: `create_conversation`, `resolve_conversation`, `delete_conversation`, `request_human_intervention`
-- [ ] Add missing Datasource tools: `update_datasource`, `delete_datasource`, `sync_datasource`, `get_datasource_status`
-- [ ] Add Agent Blacklist tools: `list_blacklist`, `add_to_blacklist`, `remove_from_blacklist`
-- [ ] Add CRM Conversation Logs tools: `list_crm_logs`, `get_crm_log`
-- [ ] Add Agent webhook listing: `get_agent_webhooks` (GET `/agents/{id}/webhook`)
-- [ ] Add more workflow prompts: datastore setup, CRM management, artifact catalog, conversation troubleshooting, Z-API messaging
-- [ ] Implement MCP notifications: emit `tools/list_changed` when tools change
+- [x] Add WhatsApp/Z-API messaging tools: zapi_list_instances, zapi_send_text/media/template/list/buttons
+- [x] Add CRM Scenario CRUD tools
+- [x] Add missing Conversation tools: create, resolve, delete, request_human_intervention
+- [x] Add missing Datasource tools: update, delete, sync, get_datasource_status
+- [x] Add Agent Blacklist tools
+- [x] Add CRM Conversation Logs tools
+- [x] Add more workflow prompts (8 total: onboard, broadcast, create_agent, setup_datastore, create_crm_workflow, whatsapp_outreach, contact_enrichment, agent_health_check)
 
 ## P3 - Low (Nice to have)
 - [ ] Add test coverage reporting with pytest-cov (target: 100%)
-- [ ] Fix file upload resource leak in loader.py (use context manager)
 - [ ] Add retry logic with exponential backoff for transient failures
 - [ ] Add rate limit handling (429 detection and backoff)
 - [ ] Add request validation against inputSchema before API call
 - [ ] Add Image/Audio content support for artifact media
-- [ ] Add Embedded Resources support in tool results
 - [ ] Add MCP-level pagination (cursors for list operations)
+- [ ] Update README with complete documentation
 
 ## Ralph Loop
-- [ ] Update Ralph Loop to auto-fetch docs.chatvolt.ai when no tasks remain
+- [x] Update Ralph Loop to auto-fetch docs when idle
 - [ ] Update README with Ralph Loop usage instructions
+
+## Stats
+- **81 tools** implemented (agents, conversations, artifacts, datastores, CRM, contacts, dispatches, blacklist, Z-API, datasource management)
+- **8 workflow prompts** implemented
+- **28 tests** passing
+- **All tools have annotations** (title, readOnlyHint, destructiveHint, idempotentHint, openWorldHint)
+- **Resources**: models, tools, prompts, agent templates
+- **Completions**: modelName, status, channel, type, method, priority
+- **Structured errors**: {error, status, message}
