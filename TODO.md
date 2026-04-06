@@ -70,3 +70,8 @@ Priority: P0 (Critical) → P1 (High) → P2 (Medium) → P3 (Low)
 - **New dispatch features**: populate_dispatch_queue, Contact List CRUD operations (list_contact_lists, get_contact_list, create_contact_list, update_contact_list, delete_contact_list)
 - **Agent handles**: Agent tools now support handles (e.g., @my-agent) in addition to UUIDs
 - **New agent discovery**: Added list_agents tool for listing all agents in the organization
+
+## MCP Protocol Support
+- **MCP Sampling**: Protocol-level support for server-initiated LLM completions (client implementation required)
+- **MCP Elicitation**: Protocol-level support for requesting user input (client implementation required)
+- **MCP Roots**: Not implemented (filesystem server feature, not applicable to API server)
