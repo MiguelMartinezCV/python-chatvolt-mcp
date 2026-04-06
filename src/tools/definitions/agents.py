@@ -86,6 +86,18 @@ TOOLS: dict[str, dict[str, Any]] = {
             "required": ["id"],
         },
     },
+    "delete_agent": {
+        "method": "DELETE",
+        "path": "/agents/{id}",
+        "description": "Delete an AI agent. This action is irreversible.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "id": {"type": "string", "description": "ID of the agent to delete"},
+            },
+            "required": ["id"],
+        },
+    },
     "get_models": {
         "method": "GET",
         "path": "/agents/models",
