@@ -47,6 +47,35 @@ The server will start at `http://localhost:8000/sse`.
 Point your MCP client (e.g., Claude Desktop, Cursor, VS Code) to the SSE endpoint:
 - **URL**: `http://localhost:8000/sse`
 
+## Usage with OpenCode
+
+1. **Start the Chatvolt MCP server**:
+   ```bash
+   uv run python run.py
+   ```
+
+2. **Configure OpenCode**:
+   Add the following to your `opencode.jsonc` (create it in your project root if it doesn't exist):
+   ```jsonc
+   {
+     "$schema": "https://opencode.ai/config.json",
+     "mcp": {
+       "chatvolt": {
+         "type": "remote",
+         "url": "http://localhost:8000/sse",
+         "enabled": true
+       }
+     }
+   }
+   ```
+
+3. **Start OpenCode**:
+   ```bash
+   opencode
+   ```
+
+   The Chatvolt MCP tools will now be available in your OpenCode sessions.
+
 ## Available Tools (81 total)
 
 ### Agents
