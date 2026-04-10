@@ -102,7 +102,7 @@ starlette_app = Starlette(
 # Override the ASGI app so all /sse traffic goes to mcp_app directly
 _inner = starlette_app
 
-_MCP_PATHS = {"/sse", "/mcp", ""}
+_MCP_PATHS = {"/sse", "/mcp", "/", ""}
 
 class RootApp:
     """Routes /sse, /mcp and / (root) to MCPApp, everything else to Starlette."""
