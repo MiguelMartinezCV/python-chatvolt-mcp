@@ -34,11 +34,28 @@ An MCP (Model Context Protocol) server for Chatvolt AI, providing tools and work
 ```bash
 uv run python run.py
 ```
-The server will start at `http://localhost:8000/sse`.
+The server will start at `http://localhost:8000`.
 
 ## Usage with MCP Clients
 
-Point your MCP client (e.g., Claude Desktop or MCP Inspector) to the SSE endpoint:
+### VS Code / GitHub Copilot
+
+Add the following to your VS Code MCP settings (`.vscode/mcp.json` or user settings):
+
+```json
+{
+  "servers": {
+    "MCP_Chatvolt": {
+      "url": "http://localhost:8000",
+      "type": "http"
+    }
+  }
+}
+```
+
+### Claude Desktop / MCP Inspector
+
+Point your MCP client to the SSE endpoint:
 - **URL**: `http://localhost:8000/sse`
 
 ### Available Tools
