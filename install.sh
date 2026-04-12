@@ -59,6 +59,7 @@ elif command -v open &>/dev/null; then
     open "https://app.chatvolt.ai/pt-BR/settings/api-keys" &>/dev/null &
 fi
 
+set +x  # Ensure the key is never echoed in debug/trace output
 while true; do
     read -rsp "  Cole sua CHATVOLT_API_KEY aqui e pressione Enter: " CHATVOLT_API_KEY
     echo ""
@@ -103,7 +104,11 @@ echo -e "  Endereço: ${GREEN}http://${SERVER_HOST}:${SERVER_PORT}${RESET}"
 echo -e "  SSE endpoint: ${GREEN}http://${SERVER_HOST}:${SERVER_PORT}/sse${RESET}"
 echo ""
 echo -e "  Configure seu cliente MCP com a URL:"
-echo -e "  ${CYAN}http://localhost:${SERVER_PORT}${RESET}"
+CLIENT_HOST="${SERVER_HOST}"
+if [[ "${SERVER_HOST}" == "0.0.0.0" ]]; then
+    CLIENT_HOST="localhost"
+fi
+echo -e "  ${CYAN}http://${CLIENT_HOST}:${SERVER_PORT}${RESET}"
 echo ""
 echo -e "  Pressione ${BOLD}Ctrl+C${RESET} para parar o servidor."
 echo ""
@@ -114,5 +119,10 @@ import uvicorn, os, sys
 sys.path.append('.')
 host = os.environ.get('MCP_HOST', '0.0.0.0')
 port = int(os.environ.get('MCP_PORT', 8000))
-uvicorn.run('src.server:starlette_app', host=host, port=port, log_level='info')
+try:
+    uvicorn.run('src.server:starlette_app', host=host, port=port, log_level='info')
+except Exception as e:
+    print(f'\n[ERRO] Falha ao iniciar o servidor: {e}')
+    print('Verifique se a porta está livre e se o CHATVOLT_API_KEY está correto no arquivo .env.')
+    sys.exit(1)
 "
