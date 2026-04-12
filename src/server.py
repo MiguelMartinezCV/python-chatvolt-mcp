@@ -102,12 +102,14 @@ starlette_app = Starlette(
 # Override the ASGI app so all /sse traffic goes to mcp_app directly
 _inner = starlette_app
 
+_MCP_PATHS = {"/sse", "/mcp", "/", ""}
+
 class RootApp:
-    """Routes /sse and /sse/ to MCPApp, everything else to Starlette."""
+    """Routes /sse, /mcp and / (root) to MCPApp, everything else to Starlette."""
     async def __call__(self, scope, receive, send):
         if scope["type"] == "http":
             path = scope.get("path", "").rstrip("/")
-            if path == "/sse":
+            if path in _MCP_PATHS:
                 await mcp_app(scope, receive, send)
                 return
         elif scope["type"] == "lifespan":
