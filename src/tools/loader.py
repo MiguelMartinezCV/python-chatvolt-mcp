@@ -8,7 +8,7 @@ from typing import Any
 import httpx
 from mcp import types
 
-from src.config import CHATVOLT_API_KEY, CHATVOLT_BASE_URL
+from src.config import CHATVOLT_BASE_URL, get_auth_token
 from src.tools.definitions import TOOLS_DEFINITION
 
 MAX_RETRIES = 3
@@ -1000,7 +1000,7 @@ class ToolRegistry:
         headers = {"Content-Type": "application/json"}
         # get_models doesn't need auth according to the request
         if name != "get_models":
-            headers["Authorization"] = f"Bearer {CHATVOLT_API_KEY}"
+            headers["Authorization"] = f"Bearer {get_auth_token()}"
 
         async def make_request(
             client: httpx.AsyncClient,

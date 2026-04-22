@@ -10,6 +10,7 @@ from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.routing import Route
 
+from src.config import set_request_auth_token
 from src.prompts.workflows import PROMPTS, get_prompt_message
 from src.tools.definitions import TOOLS_DEFINITION
 from src.tools.loader import registry
@@ -386,11 +387,22 @@ class MCPApp:
     """
     Raw ASGI app for the /sse endpoint.
     Injects Accept header before delegating to StreamableHTTPSessionManager.
+    Extracts and stores Authorization header for request-scoped access.
     """
 
     async def __call__(self, scope, receive, send):
         if scope["type"] == "http":
             headers = list(scope.get("headers", []))
+
+            auth_values = [v for k, v in headers if k.lower() == b"authorization"]
+            if auth_values:
+                auth_header = auth_values[0].decode("utf-8")
+                if auth_header.startswith("Bearer ") or auth_header.startswith("bearer "):
+                    token = auth_header[7:]
+                else:
+                    token = auth_header
+                set_request_auth_token(token)
+
             accept_values = [v for k, v in headers if k.lower() == b"accept"]
             needs_inject = not accept_values or (
                 b"application/json" not in accept_values[0] and b"text/event-stream" not in accept_values[0]
